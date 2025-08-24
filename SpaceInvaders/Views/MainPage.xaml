@@ -1,31 +1,88 @@
 ﻿<Page x:Class="SpaceInvaders.Views.MainPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Background="#000000">
+      Background="#000011">
 
     <Grid>
-        <Image Source="/Assets/Images/background.jpg" Stretch="UniformToFill" Opacity="0.3"/>
+        <!-- Background -->
+        <Rectangle Fill="#000022" />
 
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20">
-            <TextBlock Text="SPACE INVADERS" FontSize="48" Foreground="#008000"
-                       HorizontalAlignment="Center" FontWeight="Bold"/>
+        <!-- Animated stars background -->
+        <Canvas x:Name="StarsCanvas" />
 
-            <Button Content="Iniciar Novo Jogo" Command="{Binding StartNewGameCommand}"
-                    Width="200" Height="60" FontSize="18" Background="#006400" Foreground="#fff"
-                    IsEnabled="{Binding CanStartGame}"/>
+        <!-- Main Menu -->
+        <StackPanel VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Spacing="25"
+                    Width="300">
 
-            <Button Content="Tabela de Placares" Command="{Binding ShowHighScoresCommand}"
-                    Width="200" Height="60" FontSize="18" Background="#00008B" Foreground="#fff"/>
+            <!-- Title -->
+            <TextBlock Text="SPACE INVADERS"
+                       FontSize="42"
+                       Foreground="#00FF00"
+                       HorizontalAlignment="Center"
+                       FontWeight="Bold"
+                       FontFamily="Consolas"
+                       Margin="0,0,0,30"/>
 
-            <Button Content="Controles do Jogo" Command="{Binding ShowControlsCommand}"
-                    Width="200" Height="60" FontSize="18" Background="#8B0000" Foreground="#fff"/>
+            <!-- Menu Buttons -->
+            <Button Content="START NEW GAME"
+                    Click="StartGameButton_Click"
+                    Width="280"
+                    Height="50"
+                    FontSize="16"
+                    Background="#006400"
+                    Foreground="#FFFFFF"
+                    BorderBrush="#00FF00"
+                    FontFamily="Consolas"/>
 
-            <Button Content="Sair" Command="{Binding ExitCommand}"
-                    Width="200" Height="60" FontSize="18" Background="#A9A9A9" Foreground="#fff"/>
+            <Button Content="HIGH SCORES"
+                    Click="HighScoresButton_Click"
+                    Width="280"
+                    Height="50"
+                    FontSize="16"
+                    Background="#00008B"
+                    Foreground="#FFFFFF"
+                    BorderBrush="#0000FF"
+                    FontFamily="Consolas"/>
 
-            <!-- Status do jogo -->
-            <TextBlock Text="{Binding GameStatus}" Foreground="#FFFFFF" FontSize="16"
-                       HorizontalAlignment="Center" Margin="0,20,0,0"/>
+            <Button Content="CONTROLS"
+                    Click="ControlsButton_Click"
+                    Width="280"
+                    Height="50"
+                    FontSize="16"
+                    Background="#8B0000"
+                    Foreground="#FFFFFF"
+                    BorderBrush="#FF0000"
+                    FontFamily="Consolas"/>
+
+            <Button Content="EXIT GAME"
+                    Click="ExitButton_Click"
+                    Width="280"
+                    Height="50"
+                    FontSize="16"
+                    Background="#A9A9A9"
+                    Foreground="#FFFFFF"
+                    BorderBrush="#FFFFFF"
+                    FontFamily="Consolas"/>
+
+            <!-- Version info -->
+            <TextBlock Text="Space Invaders Clone v1.0"
+                       Foreground="#666666"
+                       FontSize="12"
+                       HorizontalAlignment="Center"
+                       Margin="0,20,0,0"/>
         </StackPanel>
+
+        <!-- Instructions -->
+        <StackPanel VerticalAlignment="Bottom"
+                    HorizontalAlignment="Center"
+                    Margin="20">
+            <TextBlock Text="Use ← → to move, SPACE to shoot, P to pause"
+                       Foreground="#AAAAAA"
+                       FontSize="12"
+                       HorizontalAlignment="Center"/>
+        </StackPanel>
+
     </Grid>
 </Page>

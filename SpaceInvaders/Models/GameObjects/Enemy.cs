@@ -19,7 +19,7 @@ namespace SpaceInvaders.Models.GameObjects
                     break;
                 case EnemyType.Medium:
                     Bounds = new Rect(x, y, 30, 30);
-                    PointValue = 20;
+                    PointValue = 40; // Apenas inimigos de 40 pontos atiram
                     break;
                 case EnemyType.Large:
                     Bounds = new Rect(x, y, 30, 30);
@@ -33,8 +33,8 @@ namespace SpaceInvaders.Models.GameObjects
 
     public enum EnemyType
     {
-        Small,
-        Medium,
-        Large
+        Small,   // 30 pontos - linha superior
+        Medium,  // 40 pontos - linhas do meio (ATIRAM)
+        Large    // 10 pontos - linhas inferiores
     }
 }

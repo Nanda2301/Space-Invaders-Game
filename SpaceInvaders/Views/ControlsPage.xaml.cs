@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 
 namespace SpaceInvaders.Views
 {
@@ -7,6 +8,11 @@ namespace SpaceInvaders.Views
         public ControlsPage()
         {
             this.InitializeComponent();
+        }
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            App.NavigationService?.NavigateToMainMenu();
         }
     }
 }
