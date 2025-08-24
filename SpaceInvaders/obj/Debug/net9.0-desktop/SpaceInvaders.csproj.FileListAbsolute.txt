@@ -371,3 +371,4 @@ C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\obj\Debug\net9.0-deskto
 C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\obj\Debug\net9.0-desktop\SpaceInvaders.pdb
 C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\obj\Debug\net9.0-desktop\SpaceInvaders.genruntimeconfig.cache
 C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\obj\Debug\net9.0-desktop\ref\SpaceInvaders.dll
+C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\obj\Debug\net9.0-desktop\SpaceInvaders.sourcelink.json

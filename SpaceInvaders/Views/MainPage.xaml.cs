@@ -7,6 +7,12 @@ namespace SpaceInvaders.Views
     {
         private readonly GameManager _gameManager;
         
+        private void StartGameButton_Click(object sender, RoutedEventArgs e)
+        {
+            App.GameViewModel.StartGame();
+            App.NavigationService.NavigateToGame();
+        }
+        
         public MainPage()
         {
             this.InitializeComponent();

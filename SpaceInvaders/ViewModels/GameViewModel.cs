@@ -2,15 +2,14 @@ using SpaceInvaders.Models;
 using SpaceInvaders.Models.GameObjects;
 using SpaceInvaders.Services;
 using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
+using System.Linq;
 using System.Timers;
 using System.Windows.Input;
 using Windows.Foundation;
 using Windows.System;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Input;
 using Timer = System.Timers.Timer;
-using System.Linq;
 
 namespace SpaceInvaders.ViewModels
 {
@@ -30,15 +29,20 @@ namespace SpaceInvaders.ViewModels
         private bool _isShooting;
 
         public GameState GameState => _gameService.GameState;
-        public ICommand PauseCommand { get; }
-        public ICommand MainMenuCommand { get; }
+
+        // ✅ Comandos expostos para o XAML
+        public ICommand MainMenuCommand   { get; }
+        public ICommand MoveLeftCommand   { get; }
+        public ICommand MoveRightCommand  { get; }
+        public ICommand ShootCommand      { get; }
+        public ICommand PauseCommand      { get; }
 
         // 🔹 Propriedades formatadas para binding no XAML
-        public string FormattedScore => $"Pontuação: {GameState.Player.Score}";
-        public string FormattedLives => $"Vidas: {GameState.Player.Lives}";
-        public string FormattedLevel => $"Nível: {GameState.Level}";
+        public string FormattedScore      => $"Pontuação: {GameState.Player.Score}";
+        public string FormattedLives      => $"Vidas: {GameState.Player.Lives}";
+        public string FormattedLevel      => $"Nível: {GameState.Level}";
         public string FormattedFinalScore => $"Pontuação Final: {GameState.Player.Score}";
-
+        
         public GameViewModel(IGameService gameService, ISoundService soundService, 
                            INavigationService navigationService, IHighScoreService highScoreService)
         {
@@ -47,12 +51,14 @@ namespace SpaceInvaders.ViewModels
             _navigationService = navigationService;
             _highScoreService = highScoreService;
 
-            PauseCommand = new RelayCommand(TogglePause);
-            MainMenuCommand = new RelayCommand(GoToMainMenu);
+            MainMenuCommand   = new RelayCommand(GoToMainMenu);
+            MoveLeftCommand   = new RelayCommand(MoveLeft);
+            MoveRightCommand  = new RelayCommand(MoveRight);
+            ShootCommand      = new RelayCommand(Shoot);
+            PauseCommand      = new RelayCommand(TogglePause);
 
             InitializeTimers();
         }
-        
 
         private void InitializeTimers()
         {
@@ -73,8 +79,11 @@ namespace SpaceInvaders.ViewModels
             _keyboardTimer.Tick += (s, e) => ProcessInput();
         }
         
+        #region INPUT
         public void ProcessKeyDown(VirtualKey key)
         {
+            if (GameState.IsPaused || GameState.IsGameOver) return;
+
             switch (key)
             {
                 case VirtualKey.Left:  _isMovingLeft = true; break;
@@ -98,22 +107,23 @@ namespace SpaceInvaders.ViewModels
         {
             if (GameState.IsPaused || GameState.IsGameOver) return;
 
-            if (_isMovingLeft)
-            {
-                GameState.Player.MoveLeft();
-                OnPropertyChanged(nameof(GameState));
-            }
+            if (_isMovingLeft)  MoveLeft();
+            if (_isMovingRight) MoveRight();
+            if (_isShooting && GameState.Player.CanShoot) Shoot();
+        }
+        #endregion
 
-            if (_isMovingRight)
-            {
-                GameState.Player.MoveRight(Window.Current.Bounds.Width);
-                OnPropertyChanged(nameof(GameState));
-            }
+        #region PLAYER ACTIONS
+        private void MoveLeft()
+        {
+            GameState.Player.MoveLeft();
+            OnPropertyChanged(nameof(GameState));
+        }
 
-            if (_isShooting && GameState.Player.CanShoot)
-            {
-                Shoot();
-            }
+        private void MoveRight()
+        {
+            GameState.Player.MoveRight(800); // Largura fixa para teste
+            OnPropertyChanged(nameof(GameState));
         }
 
         private void Shoot()
@@ -130,14 +140,17 @@ namespace SpaceInvaders.ViewModels
 
             UpdateUI();
         }
+        #endregion
 
+        #region ENEMY LOGIC
         private void EnemyShoot()
         {
             if (GameState.IsPaused || GameState.IsGameOver || GameState.Enemies.Count == 0) return;
 
             var random = new Random();
             var shooters = new List<Enemy>();
-
+            
+            // Encontrar o inimigo mais baixo de cada coluna
             foreach (var column in GameState.Enemies.GroupBy(e => e.Bounds.Left))
             {
                 var lowestEnemy = column.OrderByDescending(e => e.Bounds.Top).First();
@@ -166,48 +179,11 @@ namespace SpaceInvaders.ViewModels
             _soundService.PlaySound(SoundEffects.RedEnemyAppear);
         }
 
-        private void UpdateGame()
-        {
-            if (GameState.IsPaused || GameState.IsGameOver) return;
-
-            for (int i = GameState.Bullets.Count - 1; i >= 0; i--)
-            {
-                var bullet = GameState.Bullets[i];
-                bullet.Update();
-
-                if (bullet.Bounds.Top < 0 || bullet.Bounds.Bottom > Window.Current.Bounds.Height)
-                {
-                    GameState.Bullets.RemoveAt(i);
-                    if (bullet.Type == BulletType.Player)
-                        GameState.Player.CanShoot = true;
-                    continue;
-                }
-
-                CheckCollisions(bullet);
-            }
-
-            UpdateEnemies();
-
-            if (GameState.RedEnemy != null)
-            {
-                GameState.RedEnemy.Update();
-                
-                if ((GameState.RedEnemy.MovingRight && GameState.RedEnemy.Bounds.Left > Window.Current.Bounds.Width) ||
-                    (!GameState.RedEnemy.MovingRight && GameState.RedEnemy.Bounds.Right < 0))
-                {
-                    GameState.RedEnemy = null;
-                }
-            }
-
-            CheckGameOver();
-            OnPropertyChanged(nameof(GameState));
-            UpdateUI();
-        }
-
         private void UpdateEnemies()
         {
             if (GameState.Enemies.Count == 0) return;
 
+            // Mover inimigos
             double moveAmount = GameState.EnemiesMovingRight ? 
                 GameState.EnemySpeedModifier : -GameState.EnemySpeedModifier;
 
@@ -221,11 +197,11 @@ namespace SpaceInvaders.ViewModels
                 );
             }
 
+            // Verificar se precisa mudar direção
             double leftmost = GameState.Enemies.Min(e => e.Bounds.Left);
             double rightmost = GameState.Enemies.Max(e => e.Bounds.Right);
-            double bottommost = GameState.Enemies.Max(e => e.Bounds.Bottom);
 
-            if ((GameState.EnemiesMovingRight && rightmost >= Window.Current.Bounds.Width - 20) ||
+            if ((GameState.EnemiesMovingRight && rightmost >= 780) ||
                 (!GameState.EnemiesMovingRight && leftmost <= 20))
             {
                 GameState.EnemiesMovingRight = !GameState.EnemiesMovingRight;
@@ -236,76 +212,96 @@ namespace SpaceInvaders.ViewModels
                 GameState.EnemyDescentAmount = 0;
             }
 
+            // Aumentar velocidade conforme inimigos são eliminados
             GameState.EnemySpeedModifier = 1.0 + (55 - GameState.Enemies.Count) * 0.02;
         }
+        #endregion
 
+        #region COLLISION DETECTION
         private void CheckCollisions(Bullet bullet)
         {
             if (bullet.Type == BulletType.Player)
             {
-                for (int i = GameState.Enemies.Count - 1; i >= 0; i--)
-                {
-                    var enemy = GameState.Enemies[i];
-                    if (bullet.CheckCollision(enemy))
-                    {
-                        GameState.Player.Score += enemy.PointValue;
-                        GameState.Enemies.RemoveAt(i);
-                        GameState.Bullets.Remove(bullet);
-                        GameState.Player.CanShoot = true;
-                        _soundService.PlaySound(SoundEffects.Explosion);
-                        CheckExtraLife();
-                        UpdateUI();
-                        return;
-                    }
-                }
+                CheckPlayerBulletCollisions(bullet);
+            }
+            else
+            {
+                CheckEnemyBulletCollisions(bullet);
+            }
+        }
 
-                if (GameState.RedEnemy != null && bullet.CheckCollision(GameState.RedEnemy))
+        private void CheckPlayerBulletCollisions(Bullet bullet)
+        {
+            // Colisão com inimigos
+            for (int i = GameState.Enemies.Count - 1; i >= 0; i--)
+            {
+                var enemy = GameState.Enemies[i];
+                if (bullet.CheckCollision(enemy))
                 {
-                    GameState.Player.Score += GameState.RedEnemy.PointValue;
-                    GameState.RedEnemy = null;
+                    GameState.Player.Score += enemy.PointValue;
+                    GameState.Enemies.RemoveAt(i);
                     GameState.Bullets.Remove(bullet);
                     GameState.Player.CanShoot = true;
-                    _soundService.PlaySound(SoundEffects.RedEnemyKilled);
+                    _soundService.PlaySound(SoundEffects.Explosion);
                     CheckExtraLife();
                     UpdateUI();
                     return;
                 }
-
-                foreach (var shield in GameState.Shields)
-                {
-                    if (shield.IsActive && bullet.CheckCollision(shield))
-                    {
-                        shield.TakeDamage();
-                        GameState.Bullets.Remove(bullet);
-                        GameState.Player.CanShoot = true;
-                        return;
-                    }
-                }
             }
-            else
+
+            // Colisão com inimigo vermelho
+            if (GameState.RedEnemy != null && bullet.CheckCollision(GameState.RedEnemy))
             {
-                if (bullet.CheckCollision(GameState.Player))
+                GameState.Player.Score += GameState.RedEnemy.PointValue;
+                GameState.RedEnemy = null;
+                GameState.Bullets.Remove(bullet);
+                GameState.Player.CanShoot = true;
+                _soundService.PlaySound(SoundEffects.RedEnemyKilled);
+                CheckExtraLife();
+                UpdateUI();
+                return;
+            }
+
+            // Colisão com escudos
+            foreach (var shield in GameState.Shields)
+            {
+                if (shield.IsActive && bullet.CheckCollision(shield))
                 {
-                    GameState.Player.Lives--;
+                    shield.TakeDamage();
                     GameState.Bullets.Remove(bullet);
-                    _soundService.PlaySound(SoundEffects.Explosion);
-                    
-                    if (GameState.Player.Lives <= 0)
-                    {
-                        GameOver();
-                    }
+                    GameState.Player.CanShoot = true;
                     UpdateUI();
                     return;
                 }
+            }
+        }
 
-                foreach (var shield in GameState.Shields)
+        private void CheckEnemyBulletCollisions(Bullet bullet)
+        {
+            // Colisão com jogador
+            if (bullet.CheckCollision(GameState.Player))
+            {
+                GameState.Player.Lives--;
+                GameState.Bullets.Remove(bullet);
+                _soundService.PlaySound(SoundEffects.Explosion);
+                
+                if (GameState.Player.Lives <= 0)
                 {
-                    if (shield.IsActive && bullet.CheckCollision(shield))
-                    {
-                        shield.TakeDamage();
-                        GameState.Bullets.Remove(bullet);
-                        return;
-                    }
+                    GameOver();
+                }
+                UpdateUI();
+                return;
+            }
+
+            // Colisão com escudos
+            foreach (var shield in GameState.Shields)
+            {
+                if (shield.IsActive && bullet.CheckCollision(shield))
+                {
+                    shield.TakeDamage();
+                    GameState.Bullets.Remove(bullet);
+                    UpdateUI();
+                    return;
                 }
             }
         }
@@ -320,16 +316,68 @@ namespace SpaceInvaders.ViewModels
                 UpdateUI();
             }
         }
+        #endregion
+
+        #region GAME LOOP
+        private void UpdateGame()
+        {
+            if (GameState.IsPaused || GameState.IsGameOver) return;
+
+            // Atualizar balas
+            for (int i = GameState.Bullets.Count - 1; i >= 0; i--)
+            {
+                var bullet = GameState.Bullets[i];
+                bullet.Update();
+
+                // Remover balas fora da tela
+                if (bullet.Bounds.Top < 0 || bullet.Bounds.Bottom > 600)
+                {
+                    GameState.Bullets.RemoveAt(i);
+                    if (bullet.Type == BulletType.Player)
+                    {
+                        GameState.Player.CanShoot = true;
+                    }
+                    continue;
+                }
+
+                CheckCollisions(bullet);
+            }
+
+            // Atualizar inimigos
+            UpdateEnemies();
+
+            // Atualizar inimigo vermelho
+            if (GameState.RedEnemy != null)
+            {
+                GameState.RedEnemy.Update();
+                
+                // Remover se sair da tela
+                if ((GameState.RedEnemy.MovingRight && GameState.RedEnemy.Bounds.Left > 800) ||
+                    (!GameState.RedEnemy.MovingRight && GameState.RedEnemy.Bounds.Right < 0))
+                {
+                    GameState.RedEnemy = null;
+                }
+            }
+
+            CheckGameOver();
+            OnPropertyChanged(nameof(GameState));
+            UpdateUI();
+        }
 
         private void CheckGameOver()
         {
-            double bottommost = GameState.Enemies.Max(e => e.Bounds.Bottom);
-            if (bottommost >= GameState.Player.Bounds.Top - 20)
+            // Verificar se inimigos chegaram ao fundo
+            if (GameState.Enemies.Count > 0)
             {
-                GameOver();
-                return;
+                double bottommost = GameState.Enemies.Max(e => e.Bounds.Bottom);
+                if (bottommost >= GameState.Player.Bounds.Top - 20)
+                {
+                    GameOver();
+                    return;
+                }
             }
 
+            // Verificar se todos inimigos foram eliminados
             if (GameState.Enemies.Count == 0)
             {
                 NextLevel();
@@ -341,16 +389,18 @@ namespace SpaceInvaders.ViewModels
             GameState.IsGameOver = true;
             StopTimers();
             _soundService.PlaySound(SoundEffects.GameOver);
+            
+            // Navegar para tela de game over
             _navigationService.NavigateToGameOver(GameState.Player.Score);
-            UpdateUI();
         }
 
         private void NextLevel()
         {
             GameState.Level++;
             GameState.EnemySpeedModifier += 0.2;
+            
+            // Criar novos inimigos
             GameState.Enemies.Clear();
-
             for (int row = 0; row < 5; row++)
             {
                 EnemyType type = row == 0 ? EnemyType.Small : 
@@ -363,15 +413,22 @@ namespace SpaceInvaders.ViewModels
                 }
             }
 
+            // Resetar movimento
             GameState.EnemiesMovingRight = true;
             GameState.EnemyDescentAmount = 0;
+            
+            // Limpar balas
             GameState.Bullets.Clear();
             GameState.Player.CanShoot = true;
+            
+            // Remover inimigo vermelho
             GameState.RedEnemy = null;
-
+            
             UpdateUI();
         }
+        #endregion
 
+        #region GAME CONTROL
         private void TogglePause()
         {
             GameState.IsPaused = !GameState.IsPaused;
@@ -382,6 +439,7 @@ namespace SpaceInvaders.ViewModels
                 StartTimers();
             
             OnPropertyChanged(nameof(GameState));
+            UpdateUI();
         }
 
         private void GoToMainMenu()
@@ -417,10 +475,11 @@ namespace SpaceInvaders.ViewModels
         public void Dispose()
         {
             StopTimers();
-            _gameTimer.Dispose();
-            _enemyShootTimer.Dispose();
-            _redEnemyTimer.Dispose();
+            _gameTimer?.Dispose();
+            _enemyShootTimer?.Dispose();
+            _redEnemyTimer?.Dispose();
         }
+        #endregion
 
         // 🔹 Método central para atualizar UI Bindings
         private void UpdateUI()
