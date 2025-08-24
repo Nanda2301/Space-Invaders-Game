@@ -1,0 +1,131 @@
+﻿<Page x:Class="SpaceInvaders.Views.GamePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:SpaceInvaders.Views.Converters"
+      xmlns:converters="using:SpaceInvaders.Views.Converters"
+      xmlns:views="clr-namespace:SpaceInvaders.Views"
+      Background="#000000"
+      Loaded="Page_Loaded"
+      Unloaded="Page_Unloaded">
+
+    <Page.Resources>
+        <converters:ScoreConverter x:Key="ScoreConverter" />
+        <converters:LivesConverter x:Key="LivesConverter" />
+        <converters:LevelConverter x:Key="LevelConverter" />
+        <converters:FinalScoreConverter x:Key="FinalScoreConverter" />
+        <views:EnemyTypeToImageConverter x:Key="EnemyTypeToImageConverter"/>
+        <views:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <views:PauseButtonTextConverter x:Key="PauseButtonTextConverter"/>
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Page.Resources>
+
+    <Grid>
+        <!-- Game Canvas -->
+        <Canvas x:Name="GameCanvas" Background="#000000"/>
+            <!-- Player -->
+            <Image x:Name="PlayerImage" Source="/Assets/Images/player.png"
+                   Width="50" Height="30" Canvas.Left="{Binding GameState.Player.Bounds.Left}"
+                   Canvas.Top="{Binding GameState.Player.Bounds.Top}" Visibility="Visible"/>
+
+            <!-- Enemies -->
+            <ItemsControl ItemsSource="{Binding GameState.Enemies}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Image Width="30" Height="30" Canvas.Left="{Binding Bounds.Left}"
+                               Canvas.Top="{Binding Bounds.Top}">
+                            <Image.Source>
+                                <Binding Path="Type" Converter="{StaticResource EnemyTypeToImageConverter}"/>
+                            </Image.Source>
+                        </Image>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Red Enemy -->
+            <Image Source="/Assets/Images/invaderRED.gif" Width="40" Height="30"
+                   Canvas.Left="{Binding GameState.RedEnemy.Bounds.Left}"
+                   Canvas.Top="{Binding GameState.RedEnemy.Bounds.Top}"
+                   Visibility="{Binding GameState.RedEnemy, Converter={StaticResource NullToVisibilityConverter}}"/>
+
+            <!-- Bullets -->
+            <ItemsControl ItemsSource="{Binding GameState.Bullets}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Rectangle Width="3" Height="10" Fill="#FFFFFF"
+                                  Canvas.Left="{Binding Bounds.Left}"
+                                  Canvas.Top="{Binding Bounds.Top}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Shields -->
+            <ItemsControl ItemsSource="{Binding GameState.Shields}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Rectangle Width="60" Height="40" Canvas.Left="{Binding Bounds.Left}"
+                                  Canvas.Top="{Binding Bounds.Top}" Fill="#008000"
+                                  Visibility="{Binding IsActive, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+        <!-- UI Overlay -->
+        <StackPanel VerticalAlignment="Top" HorizontalAlignment="Left"
+                    Margin="10" Background="#80000000" Padding="10">
+            <TextBlock Text="{Binding GameState.Player.Score, Converter={StaticResource ScoreConverter}}"
+                       Foreground="#FFFFFF" FontSize="16"/>
+            <TextBlock Text="{Binding GameState.Player.Lives, Converter={StaticResource LivesConverter}}"
+                       Foreground="#FFFFFF" FontSize="16"/>
+            <TextBlock Text="{Binding GameState.Level, Converter={StaticResource LevelConverter}}"
+                       Foreground="#FFFFFF" FontSize="16"/>
+        </StackPanel>
+
+        <!-- Outros elementos do jogo -->
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10">
+            <TextBlock Text="{Binding FormattedScore}" Foreground="#FFFFFF" FontSize="16" Margin="10,0"/>
+            <TextBlock Text="{Binding FormattedLives}" Foreground="#FFFFFF" FontSize="16" Margin="10,0"/>
+            <TextBlock Text="{Binding FormattedLevel}" Foreground="#FFFFFF" FontSize="16" Margin="10,0"/>
+        </StackPanel>
+
+        <!-- Pause Overlay -->
+        <Border Background="#80000000" Visibility="{Binding GameState.IsPaused, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <TextBlock Text="JOGO PAUSADO" Foreground="#FFFFFF" FontSize="32"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Border>
+
+        <!-- Game Over Overlay -->
+        <Border Background="#80000000" Visibility="{Binding GameState.IsGameOver, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
+                <TextBlock Text="GAME OVER" Foreground="#FF0000" FontSize="32" HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding GameState.Player.Score, Converter={StaticResource FinalScoreConverter}}"
+                          Foreground="#FFFFFF" FontSize="20" HorizontalAlignment="Center"/>
+                <Button Content="Voltar ao Menu" Command="{Binding MainMenuCommand}"
+                        Width="200" Height="40" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Controls -->
+        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="10" Background="#80000000" Padding="10">
+            <Button Content="{Binding GameState.IsPaused, Converter={StaticResource PauseButtonTextConverter}}"
+                    Command="{Binding PauseCommand}" Width="100" Height="30"/>
+            <Button Content="Menu Principal" Command="{Binding MainMenuCommand}"
+                    Width="100" Height="30" Margin="0,10,0,0"/>
+        </StackPanel>
+    </Grid>
+</Page>

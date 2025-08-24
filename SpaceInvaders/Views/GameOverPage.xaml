@@ -1,0 +1,43 @@
+﻿<Page
+    x:Class="SpaceInvaders.Views.GameOverPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="#000000">
+
+    <Grid>
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20">
+
+            <TextBlock Text="GAME OVER"
+                       FontSize="36"
+                       Foreground="#FF0000"
+                       HorizontalAlignment="Center"/>
+
+            <TextBlock x:Name="ScoreText"
+                       Foreground="#FFFFFF"
+                       FontSize="24"
+                       HorizontalAlignment="Center"
+                       Text="Pontuação Final: 0"/>
+
+            <TextBox x:Name="PlayerNameTextBox"
+                     Width="200"
+                     PlaceholderText="Digite seu nome"
+                     HorizontalAlignment="Center"/>
+
+            <Button x:Name="SaveButton"
+                    Content="Salvar Pontuação"
+                    Click="SaveButton_Click"
+                    Width="200" Height="40"
+                    HorizontalAlignment="Center"/>
+
+            <Button Content="Jogar Novamente"
+                    Click="PlayAgainButton_Click"
+                    Width="200" Height="40"
+                    HorizontalAlignment="Center"/>
+
+            <Button Content="Menu Principal"
+                    Click="MainMenuButton_Click"
+                    Width="200" Height="40"
+                    HorizontalAlignment="Center"/>
+        </StackPanel>
+    </Grid>
+</Page>
