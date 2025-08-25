@@ -2,27 +2,23 @@ using Windows.Foundation;
 
 namespace SpaceInvaders.Models.GameObjects
 {
-    public class RedEnemy : GameObject
+    public class RedEnemy
     {
-        public int PointValue { get; set; } = 100;
-        public bool MovingRight { get; set; } = true;
+        public Rect Bounds { get; set; }
+        public bool MovingRight { get; set; }
 
         public RedEnemy()
         {
-            Bounds = new Rect(0, 50, 40, 30);
-            Speed = 3;
+            Bounds = new Rect(0, 20, 50, 30); // posição inicial exemplo
+            MovingRight = true;
         }
 
-        public override void Update()
+        public void Update()
         {
-            if (MovingRight)
-            {
-                Bounds = new Rect(Bounds.Left + Speed, Bounds.Top, Bounds.Width, Bounds.Height);
-            }
-            else
-            {
-                Bounds = new Rect(Bounds.Left - Speed, Bounds.Top, Bounds.Width, Bounds.Height);
-            }
+            double speed = MovingRight ? 3 : -3;
+            Bounds = new Rect(Bounds.Left + speed, Bounds.Top, Bounds.Width, Bounds.Height);
         }
+
+        public int PointValue => 100;
     }
 }

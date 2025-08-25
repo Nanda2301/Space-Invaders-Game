@@ -35,10 +35,13 @@ namespace SpaceInvaders
             var soundService = new SoundService();
             var highScoreService = new HighScoreService();
 
+// NavigationService
+            NavigationService = new NavigationService(rootFrame);
+
+// Inicializar ViewModels
             MainViewModel = new MainViewModel(gameService, NavigationService);
             GameViewModel = new GameViewModel(gameService, soundService, NavigationService, highScoreService);
             HighScoresViewModel = new HighScoresViewModel(highScoreService, NavigationService);
-
             if (rootFrame.Content == null)
             {
                 rootFrame.Navigate(typeof(MainPage));

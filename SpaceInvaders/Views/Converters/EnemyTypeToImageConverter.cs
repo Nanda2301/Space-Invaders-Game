@@ -1,6 +1,5 @@
-using SpaceInvaders.Models.GameObjects;
 using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Media.Imaging;
+using SpaceInvaders.Models.GameObjects;
 using System;
 
 namespace SpaceInvaders.Views.Converters
@@ -13,14 +12,13 @@ namespace SpaceInvaders.Views.Converters
             {
                 return enemyType switch
                 {
-                    EnemyType.Small  => new BitmapImage(new Uri("ms-appx:///Assets/Images/invader1.gif")),
-                    EnemyType.Medium => new BitmapImage(new Uri("ms-appx:///Assets/Images/invader2.gif")),
-                    EnemyType.Large  => new BitmapImage(new Uri("ms-appx:///Assets/Images/invader3.gif")),
-                    _ => new BitmapImage(new Uri("ms-appx:///Assets/Images/invader1.gif"))
+                    EnemyType.Small => "ms-appx:///Assets/Images/invader1.gif",
+                    EnemyType.Medium => "ms-appx:///Assets/Images/invader2.gif",
+                    EnemyType.Large => "ms-appx:///Assets/Images/invader3.gif",
+                    _ => "ms-appx:///Assets/Images/invader1.gif"
                 };
             }
-
-            return null;
+            return "ms-appx:///Assets/Images/invader1.gif";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

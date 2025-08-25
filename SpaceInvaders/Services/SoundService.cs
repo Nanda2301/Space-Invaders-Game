@@ -8,6 +8,7 @@ namespace SpaceInvaders.Services
     {
         private MediaPlayer _mediaPlayer = new MediaPlayer();
         private bool _isMuted = false;
+        private ISoundService _soundServiceImplementation;
 
         public async void PlaySound(string soundName)
         {
@@ -32,6 +33,16 @@ namespace SpaceInvaders.Services
         {
             _isMuted = isMuted;
             _mediaPlayer.Volume = isMuted ? 0 : 1;
+        }
+
+        public void PlaySound(SoundEffects soundEffect)
+        {
+            _soundServiceImplementation.PlaySound(soundEffect);
+        }
+
+        public void StopAllSounds()
+        {
+            _soundServiceImplementation.StopAllSounds();
         }
     }
 }

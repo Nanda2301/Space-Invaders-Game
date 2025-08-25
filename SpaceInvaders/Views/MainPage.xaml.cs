@@ -18,6 +18,7 @@ namespace SpaceInvaders.Views
 
         private void StartGameButton_Click(object sender, RoutedEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine("StartGameButton clicked!");
             App.GameViewModel.StartGame();
             App.NavigationService.NavigateToGame();
         }

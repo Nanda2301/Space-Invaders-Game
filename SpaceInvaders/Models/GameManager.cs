@@ -1,6 +1,7 @@
 using SpaceInvaders.Models;
 using SpaceInvaders.Services;
 using System;
+using SoundEffects = SpaceInvaders.Models.SoundEffects;
 
 namespace SpaceInvaders
 {

@@ -13,6 +13,7 @@ namespace SpaceInvaders.ViewModels
         public ICommand ShowHighScoresCommand { get; }
         public ICommand ShowControlsCommand { get; }
         public ICommand ExitCommand { get; }
+        
 
         public MainViewModel(IGameService gameService, INavigationService navigationService)
         {

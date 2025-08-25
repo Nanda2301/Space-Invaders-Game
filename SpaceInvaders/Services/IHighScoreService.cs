@@ -6,7 +6,8 @@ namespace SpaceInvaders.Services
 {
     public interface IHighScoreService
     {
-        Task<List<HighScore>> GetHighScoresAsync();
         Task SaveHighScoreAsync(HighScore highScore);
+        Task<List<HighScore>> GetHighScoresAsync();
+        Task ClearHighScoresAsync();
     }
 }

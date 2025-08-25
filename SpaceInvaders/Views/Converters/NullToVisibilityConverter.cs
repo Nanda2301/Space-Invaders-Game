@@ -1,18 +1,19 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
+using System;
 
-namespace SpaceInvaders.Views
+namespace SpaceInvaders.Views.Converters
 {
     public class NullToVisibilityConverter : IValueConverter
     {
-        public object Convert(object value, System.Type targetType, object parameter, string language)
+        public object Convert(object value, Type targetType, object parameter, string language)
         {
-            return value != null ? Visibility.Visible : Visibility.Collapsed;
+            return value == null ? Visibility.Collapsed : Visibility.Visible;
         }
 
-        public object ConvertBack(object value, System.Type targetType, object parameter, string language)
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

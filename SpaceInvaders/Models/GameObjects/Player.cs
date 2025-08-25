@@ -2,32 +2,38 @@ using Windows.Foundation;
 
 namespace SpaceInvaders.Models.GameObjects
 {
-    public class Player : GameObject
+    public class Player
     {
-        public int Lives { get; set; } = 3;
-        public int Score { get; set; }
+        public Rect Bounds { get; set; }
         public bool CanShoot { get; set; } = true;
-
-        public Player()
-        {
-            Bounds = new Rect(350, 500, 50, 30);
-            Speed = 5;
-        }
+        public int Score { get; private set; }
+        public int Lives { get; private set; } = 3;
 
         public void MoveLeft()
         {
             if (Bounds.Left > 0)
-            {
-                Bounds = new Rect(Bounds.Left - Speed, Bounds.Top, Bounds.Width, Bounds.Height);
-            }
+                Bounds = new Rect(Bounds.Left - 5, Bounds.Top, Bounds.Width, Bounds.Height);
         }
 
-        public void MoveRight(double screenWidth)
+        public void MoveRight(double canvasWidth)
         {
-            if (Bounds.Right < screenWidth)
-            {
-                Bounds = new Rect(Bounds.Left + Speed, Bounds.Top, Bounds.Width, Bounds.Height);
-            }
+            if (Bounds.Right < canvasWidth)
+                Bounds = new Rect(Bounds.Left + 5, Bounds.Top, Bounds.Width, Bounds.Height);
+        }
+
+        public void AddScore(int points)
+        {
+            Score += points;
+        }
+
+        public void GainLife()
+        {
+            if (Lives < 6) Lives++;
+        }
+
+        public void LoseLife()
+        {
+            if (Lives > 0) Lives--;
         }
     }
 }

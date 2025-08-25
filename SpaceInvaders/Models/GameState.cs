@@ -1,57 +1,117 @@
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using SpaceInvaders.Models.GameObjects;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace SpaceInvaders.Models
 {
-    public class GameState
+    public class GameState : INotifyPropertyChanged
     {
-        public Player Player { get; set; } = new Player();
-        public int Score { get; set; }
-        public int Lives { get; set; }
-        public ObservableCollection<Enemy> Enemies { get; set; } = new ObservableCollection<Enemy>();
-        public ObservableCollection<Bullet> Bullets { get; set; } = new ObservableCollection<Bullet>();
-        public ObservableCollection<Shield> Shields { get; set; } = new ObservableCollection<Shield>();
-        public RedEnemy RedEnemy { get; set; }
-        public bool IsGameOver { get; set; }
-        public bool IsPaused { get; set; }
-        public int Level { get; set; } = 1;
-        public double EnemySpeedModifier { get; set; } = 1.0;
-        public bool EnemiesMovingRight { get; set; } = true;
-        public double EnemyDescentAmount { get; set; }
+        private Player _player;
+        private ObservableCollection<Enemy> _enemies;
+        private ObservableCollection<Bullet> _bullets;
+        private ObservableCollection<Shield> _shields;
+        private RedEnemy _redEnemy;
+        private int _score;
+        private int _lives;
+        private int _level;
+        private bool _isPaused;
+        private bool _isGameOver;
+        private bool _enemiesMovingRight;
+        private double _enemySpeedModifier;
+
+        public Player Player
+        {
+            get => _player;
+            set => SetProperty(ref _player, value);
+        }
+
+        public ObservableCollection<Enemy> Enemies
+        {
+            get => _enemies;
+            set => SetProperty(ref _enemies, value);
+        }
+
+        public ObservableCollection<Bullet> Bullets
+        {
+            get => _bullets;
+            set => SetProperty(ref _bullets, value);
+        }
+
+        public ObservableCollection<Shield> Shields
+        {
+            get => _shields;
+            set => SetProperty(ref _shields, value);
+        }
+
+        public RedEnemy RedEnemy
+        {
+            get => _redEnemy;
+            set => SetProperty(ref _redEnemy, value);
+        }
+
+        public int Score
+        {
+            get => _score;
+            set => SetProperty(ref _score, value);
+        }
+
+        public int Lives
+        {
+            get => _lives;
+            set => SetProperty(ref _lives, value);
+        }
+
+        public int Level
+        {
+            get => _level;
+            set => SetProperty(ref _level, value);
+        }
+
+        public bool IsPaused
+        {
+            get => _isPaused;
+            set => SetProperty(ref _isPaused, value);
+        }
+
+        public bool IsGameOver
+        {
+            get => _isGameOver;
+            set => SetProperty(ref _isGameOver, value);
+        }
+
+        public bool EnemiesMovingRight
+        {
+            get => _enemiesMovingRight;
+            set => SetProperty(ref _enemiesMovingRight, value);
+        }
+
+        public double EnemySpeedModifier
+        {
+            get => _enemySpeedModifier;
+            set => SetProperty(ref _enemySpeedModifier, value);
+        }
         
+        public double EnemyDescentAmount { get; set; } = 0;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
+
         public void InitializeGame()
         {
-            Player = new Player();
-            Enemies.Clear();
-            Bullets.Clear();
-            Shields.Clear();
-            RedEnemy = null;
-            IsGameOver = false;
-            IsPaused = false;
-            Level = 1;
-            EnemySpeedModifier = 1.0;
-            EnemiesMovingRight = true;
-            EnemyDescentAmount = 0;
-
-            // Create enemies
-            for (int row = 0; row < 5; row++)
-            {
-                EnemyType type = row == 0 ? EnemyType.Small : 
-                    row < 3 ? EnemyType.Medium : 
-                    EnemyType.Large;
-                
-                for (int col = 0; col < 10; col++)
-                {
-                    Enemies.Add(new Enemy(type, 100 + col * 50, 50 + row * 40));
-                }
-            }
-
-            // Create shields
-            for (int i = 0; i < 4; i++)
-            {
-                Shields.Add(new Shield(100 + i * 200, 400));
-            }
+            throw new NotImplementedException();
         }
     }
 }

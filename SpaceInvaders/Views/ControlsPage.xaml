@@ -1,35 +1,77 @@
 ﻿<Page x:Class="SpaceInvaders.Views.ControlsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Background="#000000">
+      Background="#000000"
+      KeyDown="Page_KeyDown"
+      Loaded="Page_Loaded"
+      IsTabStop="True">
 
     <Grid>
         <Image Source="/Assets/Images/background.jpg" Stretch="UniformToFill" Opacity="0.3"/>
 
         <ScrollViewer>
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20" Margin="20">
-                <TextBlock Text="CONTROLES DO JOGO" FontSize="32" Foreground="#00FFFF"
-                           HorizontalAlignment="Center" FontWeight="Bold"/>
+                <TextBlock Text="GAME CONTROLS" FontSize="32" Foreground="#00FFFF"
+                           HorizontalAlignment="Center" FontWeight="Bold" FontFamily="Consolas"/>
 
-                <StackPanel Background="#80000000" Padding="20" Spacing="10">
-                    <TextBlock Text="► Setas Esquerda/Direita: Movimentar a nave" Foreground="#FFFFFF" FontSize="18"/>
-                    <TextBlock Text="► Espaço: Atirar" Foreground="#FFFFFF" FontSize="18"/>
-                    <TextBlock Text="► P: Pausar/Continuar o jogo" Foreground="#FFFFFF" FontSize="18"/>
-                    <TextBlock Text="► ESC: Voltar ao menu principal" Foreground="#FFFFFF" FontSize="18"/>
+                <StackPanel Background="#80000000" Padding="20" Spacing="12" CornerRadius="8">
+                    <TextBlock Text="MOVEMENT CONTROLS" Foreground="#FFFF00" FontSize="18" FontWeight="Bold"/>
+                    <TextBlock Text="◄ ► Left/Right Arrows: Move your spaceship" Foreground="#FFFFFF" FontSize="16"/>
+                    <TextBlock Text="🚀 SPACE: Fire laser bullets" Foreground="#FFFFFF" FontSize="16"/>
+
+                    <Rectangle Height="1" Fill="#333333" Margin="0,8"/>
+
+                    <TextBlock Text="GAME CONTROLS" Foreground="#FFFF00" FontSize="18" FontWeight="Bold"/>
+                    <TextBlock Text="⏸️ P: Pause/Resume game" Foreground="#FFFFFF" FontSize="16"/>
+                    <TextBlock Text="🏠 ESC: Return to main menu" Foreground="#FFFFFF" FontSize="16"/>
                 </StackPanel>
 
-                <StackPanel Background="#80000000" Padding="20" Spacing="10">
-                    <TextBlock Text="REGRAS DO JOGO" Foreground="#FFFF00" FontSize="20" FontWeight="Bold"/>
-                    <TextBlock Text="► Destrua todas as naves inimigas para avançar de nível" Foreground="#FFFFFF" FontSize="16"/>
-                    <TextBlock Text="► Cada tipo de nave vale pontos diferentes" Foreground="#FFFFFF" FontSize="16"/>
-                    <TextBlock Text="► A nave vermelha aparece periodicamente e vale 100 pontos" Foreground="#FFFFFF" FontSize="16"/>
-                    <TextBlock Text="► Ganhe uma vida extra a cada 1000 pontos (máximo 6 vidas)" Foreground="#FFFFFF" FontSize="16"/>
-                    <TextBlock Text="► Use os blocos verdes para se proteger dos tiros inimigos" Foreground="#FFFFFF" FontSize="16"/>
-                    <TextBlock Text="► O jogo termina se os inimigos chegarem até você ou suas vidas acabarem" Foreground="#FFFFFF" FontSize="16"/>
+                <StackPanel Background="#80000000" Padding="20" Spacing="12" CornerRadius="8">
+                    <TextBlock Text="GAME RULES" Foreground="#FF6600" FontSize="18" FontWeight="Bold"/>
+
+                    <TextBlock Text="OBJECTIVE:" Foreground="#FFFF00" FontSize="14" FontWeight="Bold"/>
+                    <TextBlock Text="• Destroy all enemy invaders to advance to the next level" Foreground="#FFFFFF" FontSize="14"/>
+                    <TextBlock Text="• Avoid enemy fire and prevent invaders from reaching the bottom" Foreground="#FFFFFF" FontSize="14"/>
+
+                    <Rectangle Height="1" Fill="#333333" Margin="0,8"/>
+
+                    <TextBlock Text="SCORING:" Foreground="#FFFF00" FontSize="14" FontWeight="Bold"/>
+                    <TextBlock Text="• Small invaders (top row): 30 points each" Foreground="#FFFFFF" FontSize="14"/>
+                    <TextBlock Text="• Medium invaders (middle rows): 20 points each" Foreground="#FFFFFF" FontSize="14"/>
+                    <TextBlock Text="• Large invaders (bottom rows): 10 points each" Foreground="#FFFFFF" FontSize="14"/>
+                    <TextBlock Text="• Red special invader: 100 points (appears every 60 seconds)" Foreground="#FF0000" FontSize="14"/>
+
+                    <Rectangle Height="1" Fill="#333333" Margin="0,8"/>
+
+                    <TextBlock Text="SPECIAL FEATURES:" Foreground="#FFFF00" FontSize="14" FontWeight="Bold"/>
+                    <TextBlock Text="• Earn extra life every 1000 points (maximum 6 lives)" Foreground="#00FF00" FontSize="14"/>
+                    <TextBlock Text="• Use green shields for protection (they degrade with damage)" Foreground="#00FF00" FontSize="14"/>
+                    <TextBlock Text="• Enemy speed increases as you eliminate more invaders" Foreground="#FFFFFF" FontSize="14"/>
+                    <TextBlock Text="• Only medium invaders can shoot back at you" Foreground="#FFFFFF" FontSize="14"/>
                 </StackPanel>
 
-                <Button Content="Voltar ao Menu" Command="{Binding MainMenuCommand}"
-                        Width="200" Height="40" HorizontalAlignment="Center"/>
+                <StackPanel Background="#80000000" Padding="20" Spacing="12" CornerRadius="8">
+                    <TextBlock Text="GAME OVER CONDITIONS:" Foreground="#FF0000" FontSize="16" FontWeight="Bold"/>
+                    <TextBlock Text="• All your lives are lost" Foreground="#FFFFFF" FontSize="14"/>
+                    <TextBlock Text="• Enemy invaders reach your spaceship" Foreground="#FFFFFF" FontSize="14"/>
+                </StackPanel>
+
+                <Button Content="🔙 BACK TO MAIN MENU"
+                        Click="BackButton_Click"
+                        Width="280" Height="50"
+                        FontSize="16"
+                        Background="#006400"
+                        Foreground="#FFFFFF"
+                        BorderBrush="#00FF00"
+                        FontFamily="Consolas"
+                        CornerRadius="8"
+                        Margin="0,20,0,0"/>
+
+                <TextBlock Text="Press ESC at any time to return to the main menu"
+                          Foreground="#666666"
+                          FontSize="12"
+                          HorizontalAlignment="Center"
+                          Margin="0,10,0,0"/>
             </StackPanel>
         </ScrollViewer>
     </Grid>

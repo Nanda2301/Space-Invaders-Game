@@ -2,22 +2,16 @@ using Windows.Foundation;
 
 namespace SpaceInvaders.Models.GameObjects
 {
-    public class Shield : GameObject
+    public class Shield
     {
-        private const int MaxHits = 6;
-        private int _hits;
+        public Rect Bounds { get; set; }
+        public int Health { get; private set; } = 3;
 
-        public bool IsActive => _hits < MaxHits;
-
-        public Shield(double x, double y)
-        {
-            Bounds = new Rect(x, y, 60, 30);
-            _hits = 0;
-        }
+        public bool IsActive => Health > 0;
 
         public void TakeDamage()
         {
-            _hits++;
+            if (Health > 0) Health--;
         }
     }
 }

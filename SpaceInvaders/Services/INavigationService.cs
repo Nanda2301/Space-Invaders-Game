@@ -6,6 +6,5 @@ namespace SpaceInvaders.Services
         void NavigateToGame();
         void NavigateToHighScores();
         void NavigateToControls();
-        void NavigateToGameOver(int score);
     }
 }
