@@ -1,31 +1,31 @@
 using SpaceInvaders.Models.GameObjects;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media.Imaging;
+using System;
 
-namespace SpaceInvaders.Views
+namespace SpaceInvaders.Views.Converters
 {
     public class EnemyTypeToImageConverter : IValueConverter
     {
-        public object Convert(object value, System.Type targetType, object parameter, string language)
+        public object Convert(object value, Type targetType, object parameter, string language)
         {
             if (value is EnemyType enemyType)
             {
-                switch (enemyType)
+                return enemyType switch
                 {
-                    case EnemyType.Small:
-                        return new BitmapImage(new System.Uri("ms-appx:///Assets/Images/invader1.gif"));
-                    case EnemyType.Medium:
-                        return new BitmapImage(new System.Uri("ms-appx:///Assets/Images/invader2.gif"));
-                    case EnemyType.Large:
-                        return new BitmapImage(new System.Uri("ms-appx:///Assets/Images/invader3.gif"));
-                }
+                    EnemyType.Small  => new BitmapImage(new Uri("ms-appx:///Assets/Images/invader1.gif")),
+                    EnemyType.Medium => new BitmapImage(new Uri("ms-appx:///Assets/Images/invader2.gif")),
+                    EnemyType.Large  => new BitmapImage(new Uri("ms-appx:///Assets/Images/invader3.gif")),
+                    _ => new BitmapImage(new Uri("ms-appx:///Assets/Images/invader1.gif"))
+                };
             }
+
             return null;
         }
 
-        public object ConvertBack(object value, System.Type targetType, object parameter, string language)
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

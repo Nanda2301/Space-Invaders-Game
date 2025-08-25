@@ -4,20 +4,20 @@ namespace SpaceInvaders.Models.GameObjects
 {
     public class Shield : GameObject
     {
-        public int Health { get; set; } = 4;
+        private const int MaxHits = 6;
+        private int _hits;
+
+        public bool IsActive => _hits < MaxHits;
 
         public Shield(double x, double y)
         {
-            Bounds = new Rect(x, y, 60, 40);
+            Bounds = new Rect(x, y, 60, 30);
+            _hits = 0;
         }
 
         public void TakeDamage()
         {
-            Health--;
-            if (Health <= 0)
-            {
-                IsActive = false;
-            }
+            _hits++;
         }
     }
 }

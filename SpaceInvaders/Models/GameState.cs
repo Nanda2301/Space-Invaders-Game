@@ -7,6 +7,8 @@ namespace SpaceInvaders.Models
     public class GameState
     {
         public Player Player { get; set; } = new Player();
+        public int Score { get; set; }
+        public int Lives { get; set; }
         public ObservableCollection<Enemy> Enemies { get; set; } = new ObservableCollection<Enemy>();
         public ObservableCollection<Bullet> Bullets { get; set; } = new ObservableCollection<Bullet>();
         public ObservableCollection<Shield> Shields { get; set; } = new ObservableCollection<Shield>();

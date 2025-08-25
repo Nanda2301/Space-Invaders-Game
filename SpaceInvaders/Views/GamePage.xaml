@@ -2,7 +2,8 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:converters="using:SpaceInvaders.Views.Converters"
-      xmlns:views="clr-namespace:SpaceInvaders.Views"
+      xmlns:models="using:SpaceInvaders.Models.GameObjects"
+      xmlns:views="using:SpaceInvaders.Views"
       Background="#000011"
       Loaded="Page_Loaded"
       Unloaded="Page_Unloaded"
@@ -12,9 +13,17 @@
 
     <Page.Resources>
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <views:EnemyTypeToImageConverter x:Key="EnemyTypeToImageConverter"/>
         <views:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
-        <views:PauseButtonTextConverter x:Key="PauseButtonTextConverter"/>
+
+        <!-- Estilo para os botões -->
+        <Style x:Key="MenuButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#00AAFF"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Width" Value="200"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Margin" Value="0,10,0,0"/>
+        </Style>
     </Page.Resources>
 
     <Grid>
@@ -27,26 +36,75 @@
                 Background="#000022">
 
             <!-- Player -->
-            <Rectangle x:Name="PlayerRect"
-                      Width="50" Height="30"
-                      Fill="#00FF00"
-                      Canvas.Left="375" Canvas.Top="550"
-                      Visibility="Visible"/>
+            <Image x:Name="PlayerImage"
+                   Width="50" Height="30"
+                   Source="ms-appx:///Assets/Images/player.png"
+                   Canvas.Left="{Binding GameState.Player.Bounds.Left, Mode=OneWay}"
+                   Canvas.Top="{Binding GameState.Player.Bounds.Top, Mode=OneWay}"/>
 
             <!-- Enemies Container -->
-            <Canvas x:Name="EnemiesCanvas"/>
+            <ItemsControl x:Name="EnemiesCanvas"
+                          ItemsSource="{Binding GameState.Enemies, Mode=OneWay}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="models:Enemy">
+                        <Rectangle Width="{Binding Bounds.Width, Mode=OneWay}"
+                                   Height="{Binding Bounds.Height, Mode=OneWay}"
+                                   Fill="{Binding Type, Converter={StaticResource EnemyTypeToBrushConverter}, Mode=OneWay}"
+                                   Canvas.Left="{Binding Bounds.Left, Mode=OneWay}"
+                                   Canvas.Top="{Binding Bounds.Top, Mode=OneWay}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
             <!-- Red Enemy -->
             <Rectangle x:Name="RedEnemyRect"
-                      Width="40" Height="30"
-                      Fill="#FF0000"
-                      Visibility="Collapsed"/>
+                   Width="40" Height="30"
+                   Fill="#FF0000"
+                   Visibility="{Binding GameState.RedEnemy, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}"
+                   Canvas.Left="{Binding GameState.RedEnemy.Bounds.Left, Mode=OneWay}"
+                   Canvas.Top="{Binding GameState.RedEnemy.Bounds.Top, Mode=OneWay}"/>
 
             <!-- Bullets Container -->
-            <Canvas x:Name="BulletsCanvas"/>
+            <ItemsControl x:Name="BulletsCanvas"
+                          ItemsSource="{Binding GameState.Bullets, Mode=OneWay}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="models:Bullet">
+                        <Rectangle Width="3" Height="10"
+                                   Fill="{Binding Type, Converter={StaticResource BulletTypeToBrushConverter}, Mode=OneWay}"
+                                   Canvas.Left="{Binding Bounds.Left, Mode=OneWay}"
+                                   Canvas.Top="{Binding Bounds.Top, Mode=OneWay}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
             <!-- Shields Container -->
-            <Canvas x:Name="ShieldsCanvas"/>
+            <ItemsControl x:Name="ShieldsCanvas"
+                          ItemsSource="{Binding GameState.Shields, Mode=OneWay}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="models:Shield">
+                        <Rectangle Width="{Binding Bounds.Width, Mode=OneWay}"
+                                   Height="{Binding Bounds.Height, Mode=OneWay}"
+                                   Fill="{Binding Health, Converter={StaticResource ShieldHealthToBrushConverter}, Mode=OneWay}"
+                                   Canvas.Left="{Binding Bounds.Left, Mode=OneWay}"
+                                   Canvas.Top="{Binding Bounds.Top, Mode=OneWay}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
         </Canvas>
 
@@ -56,18 +114,15 @@
                     VerticalAlignment="Top"
                     Margin="20,10,0,0"
                     Spacing="30">
-            <TextBlock x:Name="ScoreText"
-                       Text="SCORE: 0000"
+            <TextBlock Text="{x:Bind ScoreText, Mode=OneWay}"
                        Foreground="#FFFFFF"
                        FontSize="16"
                        FontFamily="Consolas"/>
-            <TextBlock x:Name="LivesText"
-                       Text="LIVES: 3"
+            <TextBlock Text="{x:Bind ScoreText, Mode=OneWay}"
                        Foreground="#FFFFFF"
                        FontSize="16"
                        FontFamily="Consolas"/>
-            <TextBlock x:Name="LevelText"
-                       Text="LEVEL: 1"
+            <TextBlock Text="{x:Bind ScoreText, Mode=OneWay}"
                        Foreground="#FFFFFF"
                        FontSize="16"
                        FontFamily="Consolas"/>
@@ -76,7 +131,7 @@
         <!-- CAMADA 3: Overlay de Pause -->
         <Border x:Name="PauseOverlay"
                 Background="#80000000"
-                Visibility="Collapsed">
+                Visibility="{Binding GameState.IsPaused, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Text="GAME PAUSED"
                           Foreground="#FFFFFF"
@@ -94,28 +149,40 @@
         <!-- CAMADA 4: Overlay de Game Over -->
         <Border x:Name="GameOverOverlay"
                 Background="#80000000"
-                Visibility="Collapsed">
+                Visibility="{Binding GameState.IsGameOver, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
                 <TextBlock Text="GAME OVER"
                           Foreground="#FF4444"
                           FontSize="48"
                           FontWeight="Bold"
                           HorizontalAlignment="Center"/>
-                <TextBlock x:Name="FinalScoreText"
-                          Text="FINAL SCORE: 0000"
-                          Foreground="#FFFFFF"
-                          FontSize="24"
-                          HorizontalAlignment="Center"/>
+                <TextBlock Text="{x:Bind ScoreText, Mode=OneWay}"
+                           Foreground="#FFFFFF"
+                           FontSize="24"
+                           HorizontalAlignment="Center"/>
+
+                <!-- Campo para inserir nome do jogador -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+                    <TextBlock Text="Your Name:" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                    <TextBox x:Name="PlayerNameTextBox"
+                             Width="200"
+                             Text="{Binding PlayerName, Mode=TwoWay}"
+                             PlaceholderText="Enter your name"
+                             MaxLength="15"/>
+                </StackPanel>
+
+                <Button x:Name="SaveScoreButton"
+                        Content="SAVE SCORE"
+                        Click="SaveScoreButton_Click"
+                        Style="{StaticResource MenuButtonStyle}"/>
                 <Button x:Name="RestartButton"
                         Content="PLAY AGAIN"
                         Click="RestartButton_Click"
-                        Width="200" Height="50"
-                        FontSize="16"/>
+                        Style="{StaticResource MenuButtonStyle}"/>
                 <Button x:Name="MenuButton"
                         Content="MAIN MENU"
                         Click="MenuButton_Click"
-                        Width="200" Height="50"
-                        FontSize="16"/>
+                        Style="{StaticResource MenuButtonStyle}"/>
             </StackPanel>
         </Border>
 
@@ -130,6 +197,5 @@
             <TextBlock Text="P Pause" Foreground="#AAAAAA" FontSize="10"/>
             <TextBlock Text="ESC Menu" Foreground="#AAAAAA" FontSize="10"/>
         </StackPanel>
-
     </Grid>
 </Page>

@@ -1,71 +1,37 @@
 using SpaceInvaders.Models;
-using SpaceInvaders.Utilities;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Windows.Storage;
+using System.Text.Json;
 
 namespace SpaceInvaders.Services
 {
-    public class HighScoreService : IHighScoreService
+    public static class HighScoreService
     {
-        private const string FileName = "highscores.txt";
-
-        public async Task<List<HighScore>> GetHighScoresAsync()
+        private static readonly string HighScoresFilePath = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path, "highscores.json");
+        
+        public static void SaveHighScore(string playerName, int score)
         {
-            var highscores = new List<HighScore>();
-
-            try
+            var highScores = LoadHighScores();
+            highScores.Add(new HighScore { PlayerName = playerName, Score = score });
+            
+            // Ordenar por pontuação (maior primeiro) e manter apenas os top 10
+            highScores.Sort((a, b) => b.Score.CompareTo(a.Score));
+            if (highScores.Count > 10)
             {
-                var file = await ApplicationData.Current.LocalFolder.TryGetItemAsync(FileName) as StorageFile;
-                if (file != null)
-                {
-                    var lines = await FileIO.ReadLinesAsync(file);
-                    foreach (var line in lines)
-                    {
-                        var parts = line.Split('|');
-                        if (parts.Length == 3 && int.TryParse(parts[1], out int score) && DateTime.TryParse(parts[2], out DateTime date))
-                        {
-                            highscores.Add(new HighScore
-                            {
-                                PlayerName = parts[0],
-                                Score = score,
-                                Date = date
-                            });
-                        }
-                    }
-                }
+                highScores = highScores.GetRange(0, 10);
             }
-            catch (Exception ex)
-            {
-                // Handle exception (log or display error)
-                System.Diagnostics.Debug.WriteLine($"Error loading high scores: {ex.Message}");
-            }
-
-            return highscores.OrderByDescending(h => h.Score).ToList();
+            
+            var json = JsonSerializer.Serialize(highScores);
+            File.WriteAllText(HighScoresFilePath, json);
         }
-
-        public async Task SaveHighScoreAsync(HighScore highScore)
+        
+        public static List<HighScore> LoadHighScores()
         {
-            try
-            {
-                var highscores = await GetHighScoresAsync();
-                highscores.Add(highScore);
-                highscores = highscores.OrderByDescending(h => h.Score).Take(10).ToList();
-
-                var file = await ApplicationData.Current.LocalFolder.CreateFileAsync(
-                    FileName, CreationCollisionOption.ReplaceExisting);
-
-                var lines = highscores.Select(h => $"{h.PlayerName}|{h.Score}|{h.Date:yyyy-MM-dd HH:mm:ss}");
-                await FileIO.WriteLinesAsync(file, lines);
-            }
-            catch (Exception ex)
-            {
-                // Handle exception (log or display error)
-                System.Diagnostics.Debug.WriteLine($"Error saving high score: {ex.Message}");
-            }
+            if (!File.Exists(HighScoresFilePath))
+                return new List<HighScore>();
+                
+            var json = File.ReadAllText(HighScoresFilePath);
+            return JsonSerializer.Deserialize<List<HighScore>>(json) ?? new List<HighScore>();
         }
     }
 }

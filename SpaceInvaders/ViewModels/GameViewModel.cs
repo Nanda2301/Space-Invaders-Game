@@ -189,12 +189,7 @@ namespace SpaceInvaders.ViewModels
 
             foreach (var enemy in GameState.Enemies)
             {
-                enemy.Bounds = new Rect(
-                    enemy.Bounds.Left + moveAmount,
-                    enemy.Bounds.Top + GameState.EnemyDescentAmount,
-                    enemy.Bounds.Width,
-                    enemy.Bounds.Height
-                );
+                enemy.Move(moveAmount, GameState.EnemyDescentAmount);
             }
 
             // Verificar se precisa mudar direção
