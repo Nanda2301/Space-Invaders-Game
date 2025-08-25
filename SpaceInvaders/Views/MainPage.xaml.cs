@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml;
+﻿using System.Diagnostics;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using SpaceInvaders.ViewModels;
 
@@ -18,10 +19,14 @@ namespace SpaceInvaders.Views
 
         private void StartGameButton_Click(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("StartGameButton clicked!");
-            App.GameViewModel.StartGame();
+            Debug.WriteLine("Cliquei no botão!");
+            // Garante que GameViewModel está limpo
+            App.RecreateGameViewModel();
+
+            // Navega para a GamePage
             App.NavigationService.NavigateToGame();
         }
+
 
         private void HighScoresButton_Click(object sender, RoutedEventArgs e)
         {

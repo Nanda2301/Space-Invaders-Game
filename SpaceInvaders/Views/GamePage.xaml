@@ -15,6 +15,9 @@
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <converters:EnemyTypeToImageConverter x:Key="EnemyTypeToImageConverter"/>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <converters:BulletTypeToBrushConverter x:Key="BulletTypeToBrushConverter"/>
+        <converters:ShieldHealthToBrushConverter x:Key="ShieldHealthToBrushConverter"/>
+        <converters:ShieldHealthToVisibilityConverter x:Key="ShieldHealthToVisibilityConverter"/>
     </Page.Resources>
 
     <Grid>
@@ -32,7 +35,9 @@
                         Width="200"
                         Height="50"
                         FontSize="18"
-                        Command="{Binding StartGameCommand}"/>
+                        Command="{Binding StartGameCommand}"
+                        Background="#006400"
+                        Foreground="#FFFFFF"/>
             </StackPanel>
         </Border>
 
@@ -61,16 +66,20 @@
                     <DataTemplate x:DataType="models:Enemy">
                         <Image Width="{Binding Bounds.Width, Mode=OneWay}"
                                Height="{Binding Bounds.Height, Mode=OneWay}"
-                               Source="{Binding Type, Converter={StaticResource EnemyTypeToImageConverter}, Mode=OneWay}"
-                               Canvas.Left="{Binding Bounds.Left, Mode=OneWay}"
-                               Canvas.Top="{Binding Bounds.Top, Mode=OneWay}"/>
+                               Source="{Binding Type, Converter={StaticResource EnemyTypeToImageConverter}, Mode=OneWay}"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Canvas.Left" Value="{Binding Bounds.Left}"/>
+                        <Setter Property="Canvas.Top" Value="{Binding Bounds.Top}"/>
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
             </ItemsControl>
 
             <!-- Red Enemy -->
             <Image x:Name="RedEnemyImage"
-                   Width="40" Height="30"
+                   Width="50" Height="30"
                    Source="ms-appx:///Assets/Images/invaderRED.gif"
                    Visibility="{Binding GameState.RedEnemy, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}"
                    Canvas.Left="{Binding GameState.RedEnemy.Bounds.Left, Mode=OneWay}"
@@ -85,11 +94,15 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="models:Bullet">
                         <Rectangle Width="3" Height="10"
-                                   Fill="{Binding Type, Converter={StaticResource BulletTypeToBrushConverter}, Mode=OneWay}"
-                                   Canvas.Left="{Binding Bounds.Left, Mode=OneWay}"
-                                   Canvas.Top="{Binding Bounds.Top, Mode=OneWay}"/>
+                                   Fill="{Binding Type, Converter={StaticResource BulletTypeToBrushConverter}, Mode=OneWay}"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Canvas.Left" Value="{Binding Bounds.Left}"/>
+                        <Setter Property="Canvas.Top" Value="{Binding Bounds.Top}"/>
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
             </ItemsControl>
 
             <!-- Shields Container -->
@@ -103,10 +116,15 @@
                         <Rectangle Width="{Binding Bounds.Width, Mode=OneWay}"
                                    Height="{Binding Bounds.Height, Mode=OneWay}"
                                    Fill="{Binding Health, Converter={StaticResource ShieldHealthToBrushConverter}, Mode=OneWay}"
-                                   Canvas.Left="{Binding Bounds.Left, Mode=OneWay}"
-                                   Canvas.Top="{Binding Bounds.Top, Mode=OneWay}"/>
+                                   Visibility="{Binding Health, Converter={StaticResource ShieldHealthToVisibilityConverter}, Mode=OneWay}"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Canvas.Left" Value="{Binding Bounds.Left}"/>
+                        <Setter Property="Canvas.Top" Value="{Binding Bounds.Top}"/>
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
             </ItemsControl>
 
         </Canvas>
@@ -147,8 +165,7 @@
 
                 <Button x:Name="SaveScoreButton"
                         Content="SAVE SCORE"
-                        Command="{Binding SaveScoreCommand}"
-                        CommandParameter="{Binding ElementName=PlayerNameTextBox, Path=Text}"
+                        Click="SaveScoreButton_Click"
                         Width="200" Height="50" FontSize="16"/>
                 <Button x:Name="RestartButton"
                         Content="PLAY AGAIN"

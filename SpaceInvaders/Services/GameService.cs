@@ -8,7 +8,7 @@ namespace SpaceInvaders.Services
     {
         public GameState GameState { get; private set; }
 
-        public GameService()
+        public GameService(ISoundService soundService)
         {
             GameState = new GameState();
         }

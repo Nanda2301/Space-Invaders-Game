@@ -1,6 +1,7 @@
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Storage;
+using SpaceInvaders.Models;
 
 namespace SpaceInvaders.Services
 {
@@ -8,7 +9,6 @@ namespace SpaceInvaders.Services
     {
         private MediaPlayer _mediaPlayer = new MediaPlayer();
         private bool _isMuted = false;
-        private ISoundService _soundServiceImplementation;
 
         public async void PlaySound(string soundName)
         {
@@ -22,10 +22,10 @@ namespace SpaceInvaders.Services
                 _mediaPlayer.Source = MediaSource.CreateFromStorageFile(file);
                 _mediaPlayer.Play();
             }
-            catch
+            catch (System.Exception ex)
             {
                 // Handle exception (file not found, etc.)
-                System.Diagnostics.Debug.WriteLine($"Sound file not found: {soundName}");
+                System.Diagnostics.Debug.WriteLine($"Sound file not found: {soundName} - Error: {ex.Message}");
             }
         }
 
@@ -37,12 +37,31 @@ namespace SpaceInvaders.Services
 
         public void PlaySound(SoundEffects soundEffect)
         {
-            _soundServiceImplementation.PlaySound(soundEffect);
+            string soundFile = soundEffect switch
+            {
+                SoundEffects.PlayerShoot => "player_shoot.wav",
+                SoundEffects.EnemyShoot => "enemy_shoot.wav",
+                SoundEffects.Explosion => "explosion.wav",
+                SoundEffects.RedEnemyAppear => "red_enemy_appear.wav",
+                SoundEffects.RedEnemyKilled => "red_enemy_killed.wav",
+                SoundEffects.GameOver => "game_over.wav",
+                SoundEffects.ExtraLife => "extra_life.wav",
+                _ => "player_shoot.wav"
+            };
+
+            PlaySound(soundFile);
         }
 
         public void StopAllSounds()
         {
-            _soundServiceImplementation.StopAllSounds();
+            try
+            {
+                _mediaPlayer?.Pause();
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error stopping sounds: {ex.Message}");
+            }
         }
     }
 }

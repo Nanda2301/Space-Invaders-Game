@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Navigation;
 using SpaceInvaders.Services;
 using SpaceInvaders.Models;
 using System;
+using SpaceInvaders.ViewModels;
 
 namespace SpaceInvaders.Views
 {
@@ -11,10 +12,13 @@ namespace SpaceInvaders.Views
     {
         private int _score;
         private bool _scoreSaved = false;
+        private readonly GameViewModel _viewModel;
 
         public GameOverPage()
         {
             this.InitializeComponent();
+            _viewModel = App.GameViewModel;
+            this.DataContext = _viewModel;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -85,6 +89,15 @@ namespace SpaceInvaders.Views
             {
                 System.Diagnostics.Debug.WriteLine($"Error saving score: {ex.Message}");
                 await ShowMessageDialog("Error saving score. Please try again.", "Error");
+            }
+        }
+        
+        private void SaveScore_Click(object sender, RoutedEventArgs e)
+        {
+            if (FindName("PlayerNameTextBox") is TextBox playerNameTextBox)
+            {
+                _viewModel.SaveHighScore(playerNameTextBox.Text);
+                App.NavigationService.NavigateToHighScores();
             }
         }
 

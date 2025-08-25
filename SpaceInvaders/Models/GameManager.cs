@@ -13,8 +13,13 @@ namespace SpaceInvaders
 
         public GameManager()
         {
-            _gameService = new GameService();
+            // Cria primeiro o SoundService
             _soundService = new SoundService();
+
+            // Passa o soundService para o GameService
+            _gameService = new GameService(_soundService);
+
+            // Inicializa o estado do jogo
             _currentGameState = _gameService.GameState;
         }
 
@@ -22,7 +27,6 @@ namespace SpaceInvaders
         {
             try
             {
-                // Inicializar o estado do jogo
                 _gameService.InitializeGame();
                 _currentGameState = _gameService.GameState;
                 
@@ -60,7 +64,6 @@ namespace SpaceInvaders
         {
             if (!_currentGameState.IsPaused && !_currentGameState.IsGameOver)
             {
-                // Lógica de atualização do jogo
                 UpdatePlayer();
                 UpdateEnemies();
                 UpdateBullets();
@@ -71,25 +74,21 @@ namespace SpaceInvaders
         private void UpdatePlayer()
         {
             // Lógica de atualização do jogador
-            // (será implementada pelo GameViewModel)
         }
 
         private void UpdateEnemies()
         {
             // Lógica de atualização dos inimigos
-            // (será implementada pelo GameViewModel)
         }
 
         private void UpdateBullets()
         {
             // Lógica de atualização dos tiros
-            // (será implementada pelo GameViewModel)
         }
 
         private void CheckCollisions()
         {
             // Lógica de detecção de colisões
-            // (será implementada pelo GameViewModel)
         }
 
         // Propriedades de acesso ao estado do jogo

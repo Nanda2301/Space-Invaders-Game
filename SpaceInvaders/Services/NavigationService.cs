@@ -11,12 +11,7 @@ namespace SpaceInvaders.Services
         {
             _frame = frame;
         }
-
-        public NavigationService()
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public void NavigateToMainMenu()
         {
             _frame.Navigate(typeof(MainPage));

@@ -1,53 +1,67 @@
-using SpaceInvaders.Services;
-using SpaceInvaders.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using SpaceInvaders.Services;
+using SpaceInvaders.ViewModels;
 using SpaceInvaders.Views;
 
 namespace SpaceInvaders
 {
-    public sealed partial class App : Application
+    public partial class App : Application
     {
-        public static MainViewModel MainViewModel { get; private set; } = null!;
-        public static GameViewModel GameViewModel { get; private set; } = null!;
-        public static HighScoresViewModel HighScoresViewModel { get; private set; } = null!;
-        public static INavigationService NavigationService { get; private set; } = null!;
+        private Window m_window;
+
+        public static MainViewModel MainViewModel { get; private set; }
+        public static GameViewModel GameViewModel { get; private set; }
+        public static HighScoresViewModel HighScoresViewModel { get; private set; }
+        public static NavigationService NavigationService { get; private set; }
+
+        private static IGameService _gameService;
+        private static ISoundService _soundService;
+        private static IHighScoreService _highScoreService;
 
         public App()
         {
-            this.InitializeComponent(); 
+            this.InitializeComponent();
         }
 
-        protected override void OnLaunched(LaunchActivatedEventArgs args)
+        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            Frame rootFrame = Window.Current.Content as Frame;
+            m_window = new Window();
 
-            if (rootFrame == null)
-            {
-                rootFrame = new Frame();
-                Window.Current.Content = rootFrame;
-            }
+            var rootFrame = new Frame();
+            m_window.Content = rootFrame;
 
             NavigationService = new NavigationService(rootFrame);
 
-            // Inicializar ViewModels
-            var gameService = new GameService();
-            var soundService = new SoundService();
-            var highScoreService = new HighScoreService();
+            // Inicializa os serviços
+            _soundService = new SoundService();
+            _highScoreService = new HighScoreService();
+            _gameService = new GameService(_soundService);
 
-// NavigationService
-            NavigationService = new NavigationService(rootFrame);
+            // Cria os ViewModels
+            CreateViewModels();
 
-// Inicializar ViewModels
-            MainViewModel = new MainViewModel(gameService, NavigationService);
-            GameViewModel = new GameViewModel(gameService, soundService, NavigationService, highScoreService);
-            HighScoresViewModel = new HighScoresViewModel(highScoreService, NavigationService);
-            if (rootFrame.Content == null)
-            {
-                rootFrame.Navigate(typeof(MainPage));
-            }
+            rootFrame.Navigate(typeof(MainPage));
 
-            Window.Current.Activate();
+            m_window.Activate();
+        }
+
+        private static void CreateViewModels()
+        {
+            MainViewModel = new MainViewModel(_gameService, NavigationService);
+            HighScoresViewModel = new HighScoresViewModel(_highScoreService, NavigationService);
+            RecreateGameViewModel();
+        }
+
+        public static void RecreateGameViewModel()
+        {
+            GameViewModel?.Dispose();
+            GameViewModel = new GameViewModel(
+                (GameService)_gameService,
+                _soundService,
+                NavigationService,
+                _highScoreService
+            );
         }
     }
 }

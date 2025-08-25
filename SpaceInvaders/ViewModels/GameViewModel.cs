@@ -1,3 +1,4 @@
+using Microsoft.UI.Xaml.Input;
 using SpaceInvaders.Models;
 using SpaceInvaders.Models.GameObjects;
 using SpaceInvaders.Services;
@@ -29,9 +30,11 @@ namespace SpaceInvaders.ViewModels
         private bool _isMovingLeft;
         private bool _isMovingRight;
         private bool _isShooting;
+
         private DateTime _lastExtraLifeScore;
 
         public GameState GameState => _gameService.GameState;
+
         private bool _isStartOverlayVisible = true;
         public bool IsStartOverlayVisible
         {
@@ -39,16 +42,16 @@ namespace SpaceInvaders.ViewModels
             set { _isStartOverlayVisible = value; OnPropertyChanged(); }
         }
 
-        // Comandos
+        // Comandos MVVM
         public ICommand MainMenuCommand { get; }
         public ICommand MoveLeftCommand { get; }
         public ICommand MoveRightCommand { get; }
         public ICommand ShootCommand { get; }
         public ICommand PauseCommand { get; }
         public ICommand RestartCommand { get; }
-        public ICommand StartGameCommand { get; } // Adicionado
+        public ICommand StartGameCommand { get; }
 
-        // Propriedades formatadas para binding no XAML
+        // Bindings para XAML
         public string FormattedScore => $"Score: {GameState.Player.Score}";
         public string FormattedLives => $"Lives: {GameState.Player.Lives}";
         public string FormattedLevel => $"Level: {GameState.Level}";
@@ -62,24 +65,22 @@ namespace SpaceInvaders.ViewModels
             _navigationService = navigationService;
             _highScoreService = highScoreService;
             _lastExtraLifeScore = DateTime.MinValue;
-            
-            StartGameCommand = new RelayCommand(StartGame);
 
-            // Inicialização dos comandos
+            // Inicialização comandos
             MainMenuCommand = new RelayCommand(GoToMainMenu);
             MoveLeftCommand = new RelayCommand(MoveLeft);
             MoveRightCommand = new RelayCommand(MoveRight);
             ShootCommand = new RelayCommand(Shoot);
             PauseCommand = new RelayCommand(TogglePause);
             RestartCommand = new RelayCommand(StartGame);
-            StartGameCommand = new RelayCommand(StartGame); // ✅ Comando START
+            StartGameCommand = new RelayCommand(StartGame);
 
             InitializeTimers();
         }
 
         private void InitializeTimers()
         {
-            _gameTimer = new Timer(16.67); // ~60 FPS
+            _gameTimer = new Timer(16.67);
             _gameTimer.Elapsed += (s, e) => UpdateGame();
             _gameTimer.AutoReset = true;
 
@@ -99,6 +100,12 @@ namespace SpaceInvaders.ViewModels
         #region INPUT HANDLING
         public void ProcessKeyDown(VirtualKey key)
         {
+            if (key == VirtualKey.Escape)
+            {
+                GoToMainMenu();
+                return;
+            }
+
             if (GameState.IsPaused || GameState.IsGameOver) return;
 
             switch (key)
@@ -107,7 +114,6 @@ namespace SpaceInvaders.ViewModels
                 case VirtualKey.Right: _isMovingRight = true; break;
                 case VirtualKey.Space: _isShooting = true; break;
                 case VirtualKey.P: TogglePause(); break;
-                case VirtualKey.Escape: GoToMainMenu(); break;
             }
         }
 
@@ -165,16 +171,15 @@ namespace SpaceInvaders.ViewModels
             if (GameState.IsPaused || GameState.IsGameOver || GameState.Enemies.Count == 0) return;
 
             var random = new Random();
-            var shootingEnemies = GameState.Enemies.Where(e => e.CanShoot).ToList();
-            if (shootingEnemies.Any())
+            var shooters = GameState.Enemies.Where(e => e.CanShoot).ToList();
+            if (shooters.Any())
             {
-                var shooter = shootingEnemies[random.Next(shootingEnemies.Count)];
+                var shooter = shooters[random.Next(shooters.Count)];
                 var bullet = new Bullet(
                     shooter.Bounds.Left + shooter.Bounds.Width / 2 - 1.5,
                     shooter.Bounds.Bottom,
                     BulletType.Enemy
                 );
-
                 GameState.Bullets.Add(bullet);
                 _soundService.PlaySound(SoundEffects.EnemyShoot);
             }
@@ -186,7 +191,6 @@ namespace SpaceInvaders.ViewModels
 
             GameState.RedEnemy = new RedEnemy();
             _soundService.PlaySound(SoundEffects.RedEnemyAppear);
-            System.Diagnostics.Debug.WriteLine("Red enemy spawned!");
         }
 
         private void UpdateEnemies()
@@ -194,7 +198,6 @@ namespace SpaceInvaders.ViewModels
             if (GameState.Enemies.Count == 0) return;
 
             double moveAmount = GameState.EnemiesMovingRight ? GameState.EnemySpeedModifier : -GameState.EnemySpeedModifier;
-
             foreach (var enemy in GameState.Enemies)
                 enemy.Move(moveAmount, GameState.EnemyDescentAmount);
 
@@ -297,7 +300,6 @@ namespace SpaceInvaders.ViewModels
             {
                 GameState.Player.GainLife();
                 _soundService.PlaySound(SoundEffects.ExtraLife);
-                System.Diagnostics.Debug.WriteLine($"Extra life! Now has {GameState.Player.Lives} lives");
                 UpdateUI();
             }
         }
@@ -344,11 +346,7 @@ namespace SpaceInvaders.ViewModels
             if (GameState.Enemies.Count > 0)
             {
                 double bottommost = GameState.Enemies.Max(e => e.Bounds.Bottom);
-                if (bottommost >= GameState.Player.Bounds.Top - 20)
-                {
-                    GameOver();
-                    return;
-                }
+                if (bottommost >= GameState.Player.Bounds.Top - 20) GameOver();
             }
 
             if (GameState.Enemies.Count == 0) NextLevel();
@@ -359,7 +357,6 @@ namespace SpaceInvaders.ViewModels
             GameState.IsGameOver = true;
             StopTimers();
             _soundService.PlaySound(SoundEffects.GameOver);
-            System.Diagnostics.Debug.WriteLine($"Game Over! Final Score: {GameState.Player.Score}");
             UpdateUI();
         }
 
@@ -367,8 +364,6 @@ namespace SpaceInvaders.ViewModels
         {
             GameState.Level++;
             GameState.EnemySpeedModifier += 0.3;
-
-            System.Diagnostics.Debug.WriteLine($"Level {GameState.Level} started!");
 
             GameState.Enemies.Clear();
             for (int row = 0; row < 5; row++)
@@ -383,7 +378,6 @@ namespace SpaceInvaders.ViewModels
 
             GameState.EnemiesMovingRight = true;
             GameState.EnemyDescentAmount = 0;
-
             GameState.Bullets.Clear();
             GameState.Player.CanShoot = true;
             GameState.RedEnemy = null;
@@ -400,7 +394,6 @@ namespace SpaceInvaders.ViewModels
             if (GameState.IsPaused) PauseTimers();
             else ResumeTimers();
 
-            System.Diagnostics.Debug.WriteLine($"Game {(GameState.IsPaused ? "paused" : "resumed")}");
             UpdateUI();
         }
 
@@ -412,10 +405,9 @@ namespace SpaceInvaders.ViewModels
 
         public void StartGame()
         {
-            System.Diagnostics.Debug.WriteLine("StartGameCommand executed!"); // debug
             GameState.InitializeGame();
             StartTimers();
-            IsStartOverlayVisible = false; // esconde o overlay
+            IsStartOverlayVisible = false;
             UpdateUI();
         }
 
@@ -484,12 +476,8 @@ namespace SpaceInvaders.ViewModels
                 };
 
                 await _highScoreService.SaveHighScoreAsync(highScore);
-                System.Diagnostics.Debug.WriteLine($"High score saved: {playerName} - {GameState.Player.Score}");
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error saving high score: {ex.Message}");
-            }
+            catch { }
         }
     }
 }
