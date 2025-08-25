@@ -2,36 +2,39 @@ using Windows.Foundation;
 
 namespace SpaceInvaders.Models.GameObjects
 {
-    public class Enemy
+    public class Enemy : GameObject
     {
         public EnemyType Type { get; set; }
-        public Rect Bounds { get; set; }
-        public bool CanShoot { get; set; } = true;
+        public int PointValue { get; set; }
 
         public Enemy(EnemyType type, double x, double y)
         {
             Type = type;
-            Bounds = new Rect(x, y, 40, 30);
+            
+            switch (type)
+            {
+                case EnemyType.Small:
+                    Bounds = new Rect(x, y, 30, 30);
+                    PointValue = 40; //Apenas inimigos de 40 pontos atiram
+                    break;
+                case EnemyType.Medium:
+                    Bounds = new Rect(x, y, 30, 30);
+                    PointValue = 30; 
+                    break;
+                case EnemyType.Large:
+                    Bounds = new Rect(x, y, 30, 30);
+                    PointValue = 10;
+                    break;
+            }
+            
+            Speed = 1;
         }
-
-        public void Move(double dx, double dy)
-        {
-            Bounds = new Rect(Bounds.Left + dx, Bounds.Top + dy, Bounds.Width, Bounds.Height);
-        }
-
-        public int PointValue => Type switch
-        {
-            EnemyType.Small => 10,
-            EnemyType.Medium => 20,
-            EnemyType.Large => 30,
-            _ => 0
-        };
     }
 
     public enum EnemyType
     {
-        Small,
-        Medium,
-        Large
+        Small,   // 30 pontos - linha superior (atiram)
+        Medium,  // 40 pontos - linhas do meio
+        Large    // 10 pontos - linhas inferiores
     }
 }

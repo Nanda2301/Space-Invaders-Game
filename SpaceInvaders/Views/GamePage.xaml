@@ -2,8 +2,7 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:converters="using:SpaceInvaders.Views.Converters"
-      xmlns:models="using:SpaceInvaders.Models.GameObjects"
-      xmlns:viewModels="using:SpaceInvaders.ViewModels"
+      xmlns:views="clr-namespace:SpaceInvaders.Views"
       Background="#000011"
       Loaded="Page_Loaded"
       Unloaded="Page_Unloaded"
@@ -15,32 +14,10 @@
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <converters:EnemyTypeToImageConverter x:Key="EnemyTypeToImageConverter"/>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
-        <converters:BulletTypeToBrushConverter x:Key="BulletTypeToBrushConverter"/>
-        <converters:ShieldHealthToBrushConverter x:Key="ShieldHealthToBrushConverter"/>
-        <converters:ShieldHealthToVisibilityConverter x:Key="ShieldHealthToVisibilityConverter"/>
+        <views:PauseButtonTextConverter x:Key="PauseButtonTextConverter"/>
     </Page.Resources>
 
     <Grid>
-        <!-- Overlay Inicial de START -->
-        <Border x:Name="StartOverlay"
-                Background="#80000000"
-                Visibility="{Binding IsStartOverlayVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
-                <TextBlock Text="SPACE INVADERS"
-                           Foreground="#FFFFFF"
-                           FontSize="48"
-                           FontWeight="Bold"
-                           HorizontalAlignment="Center"/>
-                <Button Content="START GAME"
-                        Width="200"
-                        Height="50"
-                        FontSize="18"
-                        Command="{Binding StartGameCommand}"
-                        Background="#006400"
-                        Foreground="#FFFFFF"/>
-            </StackPanel>
-        </Border>
-
         <!-- CAMADA 1: Game Canvas -->
         <Canvas x:Name="GameCanvas"
                 Width="800"
@@ -50,82 +27,26 @@
                 Background="#000022">
 
             <!-- Player -->
-            <Image x:Name="PlayerImage"
-                   Width="50" Height="30"
-                   Source="ms-appx:///Assets/Images/player.png"
-                   Canvas.Left="{Binding GameState.Player.Bounds.Left, Mode=OneWay}"
-                   Canvas.Top="{Binding GameState.Player.Bounds.Top, Mode=OneWay}"/>
+            <Rectangle x:Name="PlayerRect"
+                      Width="50" Height="30"
+                      Fill="#00FF00"
+                      Canvas.Left="375" Canvas.Top="550"
+                      Visibility="Visible"/>
 
             <!-- Enemies Container -->
-            <ItemsControl x:Name="EnemiesCanvas"
-                          ItemsSource="{Binding GameState.Enemies, Mode=OneWay}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate><Canvas/></ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="models:Enemy">
-                        <Image Width="{Binding Bounds.Width, Mode=OneWay}"
-                               Height="{Binding Bounds.Height, Mode=OneWay}"
-                               Source="{Binding Type, Converter={StaticResource EnemyTypeToImageConverter}, Mode=OneWay}"/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-                <ItemsControl.ItemContainerStyle>
-                    <Style TargetType="ContentPresenter">
-                        <Setter Property="Canvas.Left" Value="{Binding Bounds.Left}"/>
-                        <Setter Property="Canvas.Top" Value="{Binding Bounds.Top}"/>
-                    </Style>
-                </ItemsControl.ItemContainerStyle>
-            </ItemsControl>
+            <Canvas x:Name="EnemiesCanvas"/>
 
             <!-- Red Enemy -->
-            <Image x:Name="RedEnemyImage"
-                   Width="50" Height="30"
-                   Source="ms-appx:///Assets/Images/invaderRED.gif"
-                   Visibility="{Binding GameState.RedEnemy, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}"
-                   Canvas.Left="{Binding GameState.RedEnemy.Bounds.Left, Mode=OneWay}"
-                   Canvas.Top="{Binding GameState.RedEnemy.Bounds.Top, Mode=OneWay}"/>
+            <Rectangle x:Name="RedEnemyRect"
+                      Width="40" Height="30"
+                      Fill="#FF0000"
+                      Visibility="Collapsed"/>
 
             <!-- Bullets Container -->
-            <ItemsControl x:Name="BulletsCanvas"
-                          ItemsSource="{Binding GameState.Bullets, Mode=OneWay}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate><Canvas/></ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="models:Bullet">
-                        <Rectangle Width="3" Height="10"
-                                   Fill="{Binding Type, Converter={StaticResource BulletTypeToBrushConverter}, Mode=OneWay}"/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-                <ItemsControl.ItemContainerStyle>
-                    <Style TargetType="ContentPresenter">
-                        <Setter Property="Canvas.Left" Value="{Binding Bounds.Left}"/>
-                        <Setter Property="Canvas.Top" Value="{Binding Bounds.Top}"/>
-                    </Style>
-                </ItemsControl.ItemContainerStyle>
-            </ItemsControl>
+            <Canvas x:Name="BulletsCanvas"/>
 
             <!-- Shields Container -->
-            <ItemsControl x:Name="ShieldsCanvas"
-                          ItemsSource="{Binding GameState.Shields, Mode=OneWay}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate><Canvas/></ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="models:Shield">
-                        <Rectangle Width="{Binding Bounds.Width, Mode=OneWay}"
-                                   Height="{Binding Bounds.Height, Mode=OneWay}"
-                                   Fill="{Binding Health, Converter={StaticResource ShieldHealthToBrushConverter}, Mode=OneWay}"
-                                   Visibility="{Binding Health, Converter={StaticResource ShieldHealthToVisibilityConverter}, Mode=OneWay}"/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-                <ItemsControl.ItemContainerStyle>
-                    <Style TargetType="ContentPresenter">
-                        <Setter Property="Canvas.Left" Value="{Binding Bounds.Left}"/>
-                        <Setter Property="Canvas.Top" Value="{Binding Bounds.Top}"/>
-                    </Style>
-                </ItemsControl.ItemContainerStyle>
-            </ItemsControl>
+            <Canvas x:Name="ShieldsCanvas"/>
 
         </Canvas>
 
@@ -135,56 +56,80 @@
                     VerticalAlignment="Top"
                     Margin="20,10,0,0"
                     Spacing="30">
-            <TextBlock Text="{Binding FormattedScore}" Foreground="#FFFFFF" FontSize="16" FontFamily="Consolas"/>
-            <TextBlock Text="{Binding FormattedLives}" Foreground="#FFFFFF" FontSize="16" FontFamily="Consolas"/>
-            <TextBlock Text="{Binding FormattedLevel}" Foreground="#FFFFFF" FontSize="16" FontFamily="Consolas"/>
+            <TextBlock x:Name="ScoreText"
+                       Text="SCORE: 0000"
+                       Foreground="#FFFFFF"
+                       FontSize="16"
+                       FontFamily="Consolas"/>
+            <TextBlock x:Name="LivesText"
+                       Text="LIVES: 3"
+                       Foreground="#FFFFFF"
+                       FontSize="16"
+                       FontFamily="Consolas"/>
+            <TextBlock x:Name="LevelText"
+                       Text="LEVEL: 1"
+                       Foreground="#FFFFFF"
+                       FontSize="16"
+                       FontFamily="Consolas"/>
         </StackPanel>
 
         <!-- CAMADA 3: Overlay de Pause -->
         <Border x:Name="PauseOverlay"
                 Background="#80000000"
-                Visibility="{Binding GameState.IsPaused, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+                Visibility="Collapsed">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock Text="GAME PAUSED" Foreground="#FFFFFF" FontSize="48" FontWeight="Bold" HorizontalAlignment="Center"/>
-                <TextBlock Text="Press P to continue" Foreground="#AAAAAA" FontSize="18" HorizontalAlignment="Center" Margin="0,10"/>
+                <TextBlock Text="GAME PAUSED"
+                          Foreground="#FFFFFF"
+                          FontSize="48"
+                          FontWeight="Bold"
+                          HorizontalAlignment="Center"/>
+                <TextBlock Text="Press P to continue"
+                          Foreground="#AAAAAA"
+                          FontSize="18"
+                          HorizontalAlignment="Center"
+                          Margin="0,10"/>
             </StackPanel>
         </Border>
 
         <!-- CAMADA 4: Overlay de Game Over -->
         <Border x:Name="GameOverOverlay"
                 Background="#80000000"
-                Visibility="{Binding GameState.IsGameOver, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+                Visibility="Collapsed">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
-                <TextBlock Text="GAME OVER" Foreground="#FF4444" FontSize="48" FontWeight="Bold" HorizontalAlignment="Center"/>
-                <TextBlock Text="{Binding FormattedFinalScore}" Foreground="#FFFFFF" FontSize="24" HorizontalAlignment="Center"/>
-
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
-                    <TextBlock Text="Your Name:" Foreground="#FFFFFF" VerticalAlignment="Center"/>
-                    <TextBox x:Name="PlayerNameTextBox" Width="200" PlaceholderText="Enter your name" MaxLength="15"/>
-                </StackPanel>
-
-                <Button x:Name="SaveScoreButton"
-                        Content="SAVE SCORE"
-                        Click="SaveScoreButton_Click"
-                        Width="200" Height="50" FontSize="16"/>
+                <TextBlock Text="GAME OVER"
+                          Foreground="#FF4444"
+                          FontSize="48"
+                          FontWeight="Bold"
+                          HorizontalAlignment="Center"/>
+                <TextBlock x:Name="FinalScoreText"
+                          Text="FINAL SCORE: 0000"
+                          Foreground="#FFFFFF"
+                          FontSize="24"
+                          HorizontalAlignment="Center"/>
                 <Button x:Name="RestartButton"
                         Content="PLAY AGAIN"
-                        Command="{Binding RestartCommand}"
-                        Width="200" Height="50" FontSize="16"/>
+                        Click="RestartButton_Click"
+                        Width="200" Height="50"
+                        FontSize="16"/>
                 <Button x:Name="MenuButton"
                         Content="MAIN MENU"
-                        Command="{Binding MainMenuCommand}"
-                        Width="200" Height="50" FontSize="16"/>
+                        Click="MenuButton_Click"
+                        Width="200" Height="50"
+                        FontSize="16"/>
             </StackPanel>
         </Border>
 
-        <!-- CAMADA 5: Controles -->
-        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="20" Spacing="10">
+        <!-- CAMADA 5: Controles (canto inferior direito) -->
+        <StackPanel VerticalAlignment="Bottom"
+                    HorizontalAlignment="Right"
+                    Margin="20"
+                    Spacing="10">
             <TextBlock Text="Controls:" Foreground="#AAAAAA" FontSize="12"/>
             <TextBlock Text="← → Move" Foreground="#AAAAAA" FontSize="10"/>
             <TextBlock Text="SPACE Shoot" Foreground="#AAAAAA" FontSize="10"/>
             <TextBlock Text="P Pause" Foreground="#AAAAAA" FontSize="10"/>
             <TextBlock Text="ESC Menu" Foreground="#AAAAAA" FontSize="10"/>
         </StackPanel>
+
     </Grid>
 </Page>

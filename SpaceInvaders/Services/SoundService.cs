@@ -1,67 +1,100 @@
-using Windows.Media.Core;
+using System;
+using System.Collections.Generic;
 using Windows.Media.Playback;
-using Windows.Storage;
-using SpaceInvaders.Models;
+using static SpaceInvaders.Models.SoundEffects;
 
 namespace SpaceInvaders.Services
 {
-    public class SoundService : ISoundService
+    public class SoundService : ISoundService, IDisposable
     {
-        private MediaPlayer _mediaPlayer = new MediaPlayer();
+        private readonly Dictionary<SoundEffects, MediaPlayer> _mediaPlayers;
         private bool _isMuted = false;
 
-        public async void PlaySound(string soundName)
+        public SoundService()
         {
-            if (_isMuted) return;
+            _mediaPlayers = new Dictionary<SoundEffects, MediaPlayer>();
+            InitializeSounds();
+        }
+
+        private void InitializeSounds()
+        {
+            var sounds = new[]
+            {
+                SoundEffects.PlayerShoot,
+                SoundEffects.EnemyShoot,
+                SoundEffects.Explosion,
+                SoundEffects.RedEnemyAppear,
+                SoundEffects.RedEnemyKilled,
+                SoundEffects.GameOver,
+                SoundEffects.ExtraLife
+            };
+
+            foreach (var sound in sounds)
+            {
+                _mediaPlayers[sound] = new MediaPlayer();
+            }
+        }
+
+        public void PlaySound(SoundEffects sound)
+        {
+            if (_isMuted || !_mediaPlayers.ContainsKey(sound)) return;
 
             try
             {
-                var file = await StorageFile.GetFileFromApplicationUriAsync(
-                    new System.Uri($"ms-appx:///Assets/Sounds/{soundName}"));
-                
-                _mediaPlayer.Source = MediaSource.CreateFromStorageFile(file);
-                _mediaPlayer.Play();
+                // Aqui você pode tocar o som real via MediaPlayer
+                // Para simplificação, usamos Console.Beep como exemplo
+                switch (sound)
+                {
+                    case SoundEffects.PlayerShoot: PlayBeep(800, 100); break;
+                    case SoundEffects.EnemyShoot: PlayBeep(400, 150); break;
+                    case SoundEffects.Explosion: PlayBeep(200, 300); break;
+                    case SoundEffects.RedEnemyAppear: PlayBeep(1000, 200); break;
+                    case SoundEffects.RedEnemyKilled: PlayBeep(600, 250); break;
+                    case SoundEffects.GameOver: PlayBeep(150, 500); break;
+                    case SoundEffects.ExtraLife: PlayBeep(1200, 300); break;
+                }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                // Handle exception (file not found, etc.)
-                System.Diagnostics.Debug.WriteLine($"Sound file not found: {soundName} - Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error playing sound {sound}: {ex.Message}");
             }
+        }
+
+        public void StopAllSounds()
+        {
+            foreach (var player in _mediaPlayers.Values)
+            {
+                player?.Pause();
+                player?.Dispose(); // opcional, dependendo da implementação
+            }
+            _mediaPlayers.Clear();
+        }
+
+        public void PlaySound(string playerShootWav)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void PlayBeep(int frequency, int duration)
+        {
+#if WINDOWS
+            try { Console.Beep(frequency, duration); }
+            catch { }
+#endif
         }
 
         public void SetMute(bool isMuted)
         {
             _isMuted = isMuted;
-            _mediaPlayer.Volume = isMuted ? 0 : 1;
+            foreach (var player in _mediaPlayers.Values)
+            {
+                player.Volume = isMuted ? 0 : 1;
+            }
         }
 
-        public void PlaySound(SoundEffects soundEffect)
+        public void Dispose()
         {
-            string soundFile = soundEffect switch
-            {
-                SoundEffects.PlayerShoot => "player_shoot.wav",
-                SoundEffects.EnemyShoot => "enemy_shoot.wav",
-                SoundEffects.Explosion => "explosion.wav",
-                SoundEffects.RedEnemyAppear => "red_enemy_appear.wav",
-                SoundEffects.RedEnemyKilled => "red_enemy_killed.wav",
-                SoundEffects.GameOver => "game_over.wav",
-                SoundEffects.ExtraLife => "extra_life.wav",
-                _ => "player_shoot.wav"
-            };
-
-            PlaySound(soundFile);
-        }
-
-        public void StopAllSounds()
-        {
-            try
-            {
-                _mediaPlayer?.Pause();
-            }
-            catch (System.Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error stopping sounds: {ex.Message}");
-            }
+            StopAllSounds();
         }
     }
 }

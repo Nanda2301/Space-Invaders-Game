@@ -5,6 +5,7 @@ namespace SpaceInvaders.Services
         void PlaySound(SoundEffects soundEffect);
         void StopAllSounds();
         void PlaySound(string playerShootWav);
+        void Dispose();
     }
 
     public enum SoundEffects

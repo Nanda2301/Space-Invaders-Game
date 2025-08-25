@@ -1,67 +1,76 @@
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using SpaceInvaders.Services;
 using SpaceInvaders.ViewModels;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using SpaceInvaders.Views;
+using System;
 
 namespace SpaceInvaders
 {
-    public partial class App : Application
+    public sealed partial class App : Application
     {
-        private Window m_window;
-
         public static MainViewModel MainViewModel { get; private set; }
         public static GameViewModel GameViewModel { get; private set; }
         public static HighScoresViewModel HighScoresViewModel { get; private set; }
-        public static NavigationService NavigationService { get; private set; }
-
-        private static IGameService _gameService;
-        private static ISoundService _soundService;
-        private static IHighScoreService _highScoreService;
+        public static INavigationService NavigationService { get; private set; }
 
         public App()
         {
             this.InitializeComponent();
         }
 
-        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+        protected override void OnLaunched(LaunchActivatedEventArgs args)
         {
-            m_window = new Window();
+            try
+            {
+                Frame rootFrame = Window.Current?.Content as Frame;
 
-            var rootFrame = new Frame();
-            m_window.Content = rootFrame;
+                if (rootFrame == null)
+                {
+                    rootFrame = new Frame();
+                    Window.Current.Content = rootFrame;
+                }
 
-            NavigationService = new NavigationService(rootFrame);
+                // Configurar serviços
+                NavigationService = new NavigationService(rootFrame);
 
-            // Inicializa os serviços
-            _soundService = new SoundService();
-            _highScoreService = new HighScoreService();
-            _gameService = new GameService(_soundService);
+                // Inicializar serviços
+                var soundService = new SoundService();               // Criar primeiro
+                var gameService = new GameService(soundService);     // Passar o soundService para o GameService
+                var highScoreService = new HighScoreService();
 
-            // Cria os ViewModels
-            CreateViewModels();
+                // Inicializar ViewModels
+                MainViewModel = new MainViewModel(gameService, NavigationService);
+                GameViewModel = new GameViewModel(gameService, soundService, NavigationService, highScoreService);
+                HighScoresViewModel = new HighScoresViewModel(highScoreService, NavigationService);
 
-            rootFrame.Navigate(typeof(MainPage));
+                // Navegar para a página inicial
+                if (rootFrame.Content == null)
+                {
+                    rootFrame.Navigate(typeof(MainPage));
+                }
 
-            m_window.Activate();
-        }
-
-        private static void CreateViewModels()
-        {
-            MainViewModel = new MainViewModel(_gameService, NavigationService);
-            HighScoresViewModel = new HighScoresViewModel(_highScoreService, NavigationService);
-            RecreateGameViewModel();
-        }
-
-        public static void RecreateGameViewModel()
-        {
-            GameViewModel?.Dispose();
-            GameViewModel = new GameViewModel(
-                (GameService)_gameService,
-                _soundService,
-                NavigationService,
-                _highScoreService
-            );
+                // Ativar janela
+                Window.Current.Activate();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error during app launch: {ex.Message}");
+                
+                // Fallback: criar uma janela simples
+                try
+                {
+                    var frame = new Frame();
+                    frame.Navigate(typeof(MainPage));
+                    Window.Current.Content = frame;
+                    Window.Current.Activate();
+                }
+                catch
+                {
+                    // Se tudo falhar, pelo menos tente ativar a janela
+                    Window.Current?.Activate();
+                }
+            }
         }
     }
 }

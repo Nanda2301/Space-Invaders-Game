@@ -27,7 +27,7 @@
 
             <!-- Menu Buttons -->
             <Button Content="START NEW GAME"
-                    Click="StartGameButton_Click"
+                    Click="StartNewGameButton_Click"
                     Width="280"
                     Height="50"
                     FontSize="16"
@@ -54,16 +54,6 @@
                     Background="#8B0000"
                     Foreground="#FFFFFF"
                     BorderBrush="#FF0000"
-                    FontFamily="Consolas"/>
-
-            <Button Content="EXIT GAME"
-                    Click="ExitButton_Click"
-                    Width="280"
-                    Height="50"
-                    FontSize="16"
-                    Background="#A9A9A9"
-                    Foreground="#FFFFFF"
-                    BorderBrush="#FFFFFF"
                     FontFamily="Consolas"/>
 
             <!-- Version info -->

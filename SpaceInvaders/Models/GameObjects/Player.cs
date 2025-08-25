@@ -11,7 +11,7 @@ namespace SpaceInvaders.Models.GameObjects
 
         public Player()
         {
-            // Initialize at bottom center of 800x600 game area
+            // Inicializa no centro inferior da área de 800x600
             Bounds = new Rect(375, 550, 50, 30);
             Score = 0;
             Lives = 3;
@@ -35,6 +35,12 @@ namespace SpaceInvaders.Models.GameObjects
             Score += points;
         }
 
+        // Novo método para permitir que o Score seja atualizado externamente
+        public void SetScore(int newScore)
+        {
+            Score = newScore;
+        }
+
         public void GainLife()
         {
             if (Lives < 6) Lives++;
@@ -47,9 +53,9 @@ namespace SpaceInvaders.Models.GameObjects
 
         public void ResetPosition(double canvasWidth, double canvasHeight)
         {
-            // Reset to bottom center
+            // Reset para o centro inferior
             double centerX = (canvasWidth - Bounds.Width) / 2;
-            double bottomY = canvasHeight - Bounds.Height - 20; // 20 pixels from bottom
+            double bottomY = canvasHeight - Bounds.Height - 20; // 20 pixels da borda inferior
             Bounds = new Rect(centerX, bottomY, Bounds.Width, Bounds.Height);
         }
     }
