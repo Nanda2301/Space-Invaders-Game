@@ -5,25 +5,25 @@ namespace SpaceInvaders.Models.GameObjects
     public class Shield
     {
         public Rect Bounds { get; set; }
-        public int Health { get; private set; } = 3;
+        public int Health { get; private set; } = 10; // Agora suporta 10 tiros
 
         public Shield()
         {
-            Bounds = new Rect(0, 0, 60, 40); // Default size
-            Health = 3;
+            Bounds = new Rect(0, 0, 60, 40); 
+            Health = 10;
         }
 
         public Shield(double x, double y, double width = 60, double height = 40)
         {
             Bounds = new Rect(x, y, width, height);
-            Health = 3;
+            Health = 10;
         }
 
         public bool IsActive => Health > 0;
 
         public void TakeDamage()
         {
-            if (Health > 0) 
+            if (Health > 0)
             {
                 Health--;
                 System.Diagnostics.Debug.WriteLine($"Shield took damage! Health now: {Health}");
@@ -33,7 +33,7 @@ namespace SpaceInvaders.Models.GameObjects
         public bool CheckCollision(dynamic obj)
         {
             if (obj?.Bounds == null) return false;
-            
+
             Rect a = Bounds;
             Rect b = obj.Bounds;
 

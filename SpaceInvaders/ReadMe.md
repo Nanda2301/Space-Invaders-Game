@@ -55,36 +55,17 @@ Este é um clone quase fiel do clássico jogo **Space Invaders** (1978), desenvo
 ## 📱 Capturas de Tela
 
 ### Menu Principal
-```
- ████████  ██████   █████   ██████ ███████
-██     ██ ██   ██ ██   ██ ██      ██
-██     ██ ██████  ███████ ██      █████
-██     ██ ██      ██   ██ ██      ██
- ████████  ██      ██   ██  ██████ ███████
 
-██ ███    ██ ██    ██  █████  ██████  ███████ ██████  ███████
-██ ████   ██ ██    ██ ██   ██ ██   ██ ██      ██   ██ ██
-██ ██ ██  ██ ██    ██ ███████ ██   ██ █████   ██████  ███████
-██ ██  ██ ██  ██  ██  ██   ██ ██   ██ ██      ██   ██      ██
-██ ██   ████   ████   ██   ██ ██████  ███████ ██   ██ ███████
-
-[START NEW GAME]  [HIGH SCORES]  [CONTROLS]
-```
+![img_1.png](img_1.png)
 
 ### Tela de Jogo
-```
-SCORE: 0850    LIVES: 2    LEVEL: 1
+![img_2.png](img_2.png)
 
-👾👾👾👾👾👾👾👾👾👾
-👽👽👽👽👽👽👽👽👽👽
-👽👽👽👽👽👽👽👽👽👽
-🛴🛴🛴🛴🛴🛴🛴🛴🛴🛴
-🛴🛴🛴🛴🛴🛴🛴🛴🛴🛴
+### Tela de Pontuação
+![img_3.png](img_3.png)
 
-    🟢    🟢    🟢    🟢   <- Escudos
-
-           🟢                <- Jogador
-```
+### Tela de Controle
+![img_4.png](img_4.png)
 
 ## 🛠 Tecnologias Utilizadas
 
@@ -142,7 +123,7 @@ SCORE: 0850    LIVES: 2    LEVEL: 1
 
 ### 1. Clonar o Repositório
 ```bash
-git clone https://github.com/seu-usuario/SpaceInvaders-Uno.git
+git clone https://github.com/Nanda2301/Space-Invaders-Game.git
 cd SpaceInvaders-Uno
 ```
 
@@ -465,6 +446,6 @@ copies or substantial portions of the Software.
 
 **Feito com ❤️ usando Uno Platform**
 
-[⭐ Star este projeto](https://github.com/seu-usuario/SpaceInvaders-Uno) | [📝 Report Bug](https://github.com/seu-usuario/SpaceInvaders-Uno/issues) | [💡 Request Feature](https://github.com/seu-usuario/SpaceInvaders-Uno/issues)
+[⭐ Star este projeto](https://github.com/Nanda2301/Space-Invaders-Game.git) | [📝 Report Bug](https://github.com/Nanda2301/Space-Invaders-Game.git) | [💡 Request Feature](https://github.com/Nanda2301/Space-Invaders-Game.git)
 
 </div>

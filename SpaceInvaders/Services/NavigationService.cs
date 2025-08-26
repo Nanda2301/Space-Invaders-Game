@@ -37,5 +37,10 @@ namespace SpaceInvaders.Services
         {
             _frame.Navigate(typeof(GameOverPage), score);
         }
+
+        public void NavigateToMenu()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -11,7 +11,7 @@ namespace SpaceInvaders.Models.GameObjects
 
         public virtual void Update()
         {
-            // Base implementation can be overridden
+            
         }
 
         public virtual bool CheckCollision(GameObject other)

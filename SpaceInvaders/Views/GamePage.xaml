@@ -18,18 +18,23 @@
     </Page.Resources>
 
     <Grid>
+
+        <!-- CAMADA 0: Background -->
+        <Image Source="/Assets/Images/background.jpg"
+               Stretch="UniformToFill"
+               Opacity="0.3"/>
+
         <!-- CAMADA 1: Game Canvas -->
         <Canvas x:Name="GameCanvas"
                 Width="800"
                 Height="600"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Background="#000022">
+                >
 
             <!-- Player -->
             <Rectangle x:Name="PlayerRect"
                       Width="50" Height="30"
-                      Fill="#00FF00"
                       Canvas.Left="375" Canvas.Top="550"
                       Visibility="Visible"/>
 
@@ -39,7 +44,6 @@
             <!-- Red Enemy -->
             <Rectangle x:Name="RedEnemyRect"
                       Width="40" Height="30"
-                      Fill="#FF0000"
                       Visibility="Collapsed"/>
 
             <!-- Bullets Container -->

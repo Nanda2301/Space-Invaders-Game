@@ -378,3 +378,8 @@ C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\bin\Debug\net9.0-deskto
 C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\bin\Debug\net9.0-desktop\NAudio.Midi.dll
 C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\bin\Debug\net9.0-desktop\NAudio.Wasapi.dll
 C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\bin\Debug\net9.0-desktop\NAudio.WinMM.dll
+C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\bin\Debug\net9.0-desktop\img.png
+C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\bin\Debug\net9.0-desktop\img_1.png
+C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\bin\Debug\net9.0-desktop\img_2.png
+C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\bin\Debug\net9.0-desktop\img_3.png
+C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\bin\Debug\net9.0-desktop\img_4.png
