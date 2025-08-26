@@ -127,8 +127,6 @@
             <TextBlock Text="Controls:" Foreground="#AAAAAA" FontSize="12"/>
             <TextBlock Text="← → Move" Foreground="#AAAAAA" FontSize="10"/>
             <TextBlock Text="SPACE Shoot" Foreground="#AAAAAA" FontSize="10"/>
-            <TextBlock Text="P Pause" Foreground="#AAAAAA" FontSize="10"/>
-            <TextBlock Text="ESC Menu" Foreground="#AAAAAA" FontSize="10"/>
         </StackPanel>
 
     </Grid>

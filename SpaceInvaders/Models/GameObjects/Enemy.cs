@@ -33,8 +33,8 @@ namespace SpaceInvaders.Models.GameObjects
 
     public enum EnemyType
     {
-        Small,   // 30 pontos - linha superior (atiram)
-        Medium,  // 40 pontos - linhas do meio
+        Small,   // 40 pontos - linha superior (atiram)
+        Medium,  // 30 pontos - linhas do meio
         Large    // 10 pontos - linhas inferiores
     }
 }

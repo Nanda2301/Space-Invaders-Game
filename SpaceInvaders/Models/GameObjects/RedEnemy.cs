@@ -19,6 +19,6 @@ namespace SpaceInvaders.Models.GameObjects
             Bounds = new Rect(Bounds.Left + speed, Bounds.Top, Bounds.Width, Bounds.Height);
         }
 
-        public int PointValue => 100;
+        public int PointValue => 200;
     }
 }

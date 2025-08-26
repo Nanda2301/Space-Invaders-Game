@@ -53,13 +53,13 @@ namespace SpaceInvaders.Views
             _gameTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) }; // 60 FPS
             _gameTimer.Tick += GameTimer_Tick;
 
-            _enemyMoveTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
+            _enemyMoveTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(2500) };
             _enemyMoveTimer.Tick += EnemyMoveTimer_Tick;
 
             _enemyShootTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(2000) };
             _enemyShootTimer.Tick += EnemyShootTimer_Tick;
 
-            _redEnemyTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(60) }; // 60 segundos
+            _redEnemyTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
             _redEnemyTimer.Tick += RedEnemyTimer_Tick;
 
             InitializeGame();
@@ -218,7 +218,6 @@ namespace SpaceInvaders.Views
         private void UpdatePlayerPosition()
         {
             var player = _gameService.GameState.Player;
-
             if (PlayerImage != null)
             {
                 Canvas.SetLeft(PlayerImage, player.Bounds.Left);
@@ -404,7 +403,16 @@ namespace SpaceInvaders.Views
             );
 
             _gameService.GameState.Bullets.Add(bullet);
-            _soundService.PlaySound(SoundEffects.EnemyShoot);
+            
+            try
+            {
+                _soundService.PlaySound(SoundEffects.EnemyShoot);
+            }
+            catch
+            {
+                System.Console.Beep(400, 100);
+            }
+            
             CreateBulletVisual(bullet);
         }
 
@@ -416,7 +424,16 @@ namespace SpaceInvaders.Views
             if (_gameService.GameState.RedEnemy == null)
             {
                 _gameService.GameState.RedEnemy = new RedEnemy();
-                _soundService.PlaySound(SoundEffects.RedEnemyAppear);
+                
+                try
+                {
+                    _soundService.PlaySound(SoundEffects.RedEnemyAppear);
+                }
+                catch
+                {
+                    System.Console.Beep(1200, 200);
+                }
+                
                 ShowRedEnemy();
             }
         }
@@ -432,7 +449,6 @@ namespace SpaceInvaders.Views
             ReturnToMenu();
         }
 
-
         private void ShowRedEnemy()
         {
             var redEnemy = _gameService.GameState.RedEnemy;
@@ -440,18 +456,20 @@ namespace SpaceInvaders.Views
 
             if (_redEnemyImage == null)
             {
-                _redEnemyImage = new Image
+                // Usar Rectangle para consistência
+                var redEnemyRect = new Rectangle
                 {
-                    Source = new BitmapImage(new Uri("ms-appx:///Assets/Images/invaderRED.gif")),
                     Width = redEnemy.Bounds.Width,
-                    Height = redEnemy.Bounds.Height
+                    Height = redEnemy.Bounds.Height,
+                    Fill = new SolidColorBrush(Microsoft.UI.Colors.Red)
                 };
-                GameCanvas.Children.Add(_redEnemyImage);
+                GameCanvas.Children.Add(redEnemyRect);
+                RedEnemyRect = redEnemyRect;
             }
 
-            Canvas.SetLeft(_redEnemyImage, redEnemy.Bounds.Left);
-            Canvas.SetTop(_redEnemyImage, redEnemy.Bounds.Top);
-            _redEnemyImage.Visibility = Visibility.Visible;
+            Canvas.SetLeft(RedEnemyRect, redEnemy.Bounds.Left);
+            Canvas.SetTop(RedEnemyRect, redEnemy.Bounds.Top);
+            RedEnemyRect.Visibility = Visibility.Visible;
         }
 
         private void UpdateRedEnemy()
@@ -465,13 +483,13 @@ namespace SpaceInvaders.Views
                 (!redEnemy.MovingRight && redEnemy.Bounds.Right < 0))
             {
                 _gameService.GameState.RedEnemy = null;
-                if (_redEnemyImage != null)
-                    _redEnemyImage.Visibility = Visibility.Collapsed;
+                if (RedEnemyRect != null)
+                    RedEnemyRect.Visibility = Visibility.Collapsed;
             }
-            else if (_redEnemyImage != null)
+            else if (RedEnemyRect != null)
             {
-                Canvas.SetLeft(_redEnemyImage, redEnemy.Bounds.Left);
-                Canvas.SetTop(_redEnemyImage, redEnemy.Bounds.Top);
+                Canvas.SetLeft(RedEnemyRect, redEnemy.Bounds.Left);
+                Canvas.SetTop(RedEnemyRect, redEnemy.Bounds.Top);
             }
         }
 
@@ -500,7 +518,15 @@ namespace SpaceInvaders.Views
                             RemoveEnemyVisual(enemyIndex);
                             RemoveBulletVisual(bulletIndex);
 
-                            _soundService.PlaySound(SoundEffects.Explosion);
+                            try
+                            {
+                                _soundService.PlaySound(SoundEffects.Explosion);
+                            }
+                            catch
+                            {
+                                System.Console.Beep(200, 150);
+                            }
+                            
                             CheckExtraLife();
                             collision = true;
                             break;
@@ -513,11 +539,19 @@ namespace SpaceInvaders.Views
                         gameState.RedEnemy = null;
                         gameState.Bullets.Remove(bullet);
 
-                        if (_redEnemyImage != null)
-                            _redEnemyImage.Visibility = Visibility.Collapsed;
+                        if (RedEnemyRect != null)
+                            RedEnemyRect.Visibility = Visibility.Collapsed;
                         RemoveBulletVisual(bulletIndex);
 
-                        _soundService.PlaySound(SoundEffects.RedEnemyKilled);
+                        try
+                        {
+                            _soundService.PlaySound(SoundEffects.RedEnemyKilled);
+                        }
+                        catch
+                        {
+                            System.Console.Beep(600, 200);
+                        }
+                        
                         CheckExtraLife();
                         collision = true;
                     }
@@ -530,7 +564,15 @@ namespace SpaceInvaders.Views
                         gameState.Bullets.Remove(bullet);
                         RemoveBulletVisual(bulletIndex);
 
-                        _soundService.PlaySound(SoundEffects.Explosion);
+                        try
+                        {
+                            _soundService.PlaySound(SoundEffects.Explosion);
+                        }
+                        catch
+                        {
+                            System.Console.Beep(300, 300);
+                        }
+                        
                         collision = true;
                     }
                 }
@@ -587,7 +629,15 @@ namespace SpaceInvaders.Views
             if (player.Score >= 1000 && player.Score % 1000 < 50 && player.Lives < 6)
             {
                 player.GainLife();
-                _soundService.PlaySound(SoundEffects.ExtraLife);
+                
+                try
+                {
+                    _soundService.PlaySound(SoundEffects.ExtraLife);
+                }
+                catch
+                {
+                    System.Console.Beep(1000, 500);
+                }
             }
         }
 
@@ -613,10 +663,18 @@ namespace SpaceInvaders.Views
             gameState.IsGameOver = true;
             StopGame();
 
-            _soundService.PlaySound(SoundEffects.GameOver);
+            try
+            {
+                _soundService.PlaySound(SoundEffects.GameOver);
+            }
+            catch
+            {
+                System.Console.Beep(200, 1000);
+            }
 
-            FinalScoreText.Text = $"FINAL SCORE: {gameState.Player.Score:D4}";
-            GameOverOverlay.Visibility = Visibility.Visible;
+            // CORREÇÃO: Navegar para GameOverPage com o score
+            var navigationService = App.NavigationService as NavigationService;
+            navigationService?.NavigateToGameOver(gameState.Player.Score);
         }
 
         private void NextLevel()
@@ -654,6 +712,9 @@ namespace SpaceInvaders.Views
             ScoreText.Text = $"SCORE: {_gameService.GameState.Player.Score:D4}";
             LivesText.Text = $"LIVES: {_gameService.GameState.Player.Lives}";
             LevelText.Text = $"LEVEL: {_gameService.GameState.Level}";
+
+            // Atualizar overlay de pause
+            PauseOverlay.Visibility = _gameService.GameState.IsPaused ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void Page_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -664,6 +725,17 @@ namespace SpaceInvaders.Views
             {
                 TryShoot();
             }
+            else if (e.Key == VirtualKey.P)
+            {
+                _gameService.GameState.IsPaused = !_gameService.GameState.IsPaused;
+                UpdateUI();
+            }
+            else if (e.Key == VirtualKey.Escape)
+            {
+                ReturnToMenu();
+            }
+
+            e.Handled = true;
         }
 
         private void Page_KeyUp(object sender, KeyRoutedEventArgs e)

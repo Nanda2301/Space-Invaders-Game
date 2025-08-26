@@ -32,6 +32,7 @@ namespace SpaceInvaders.Services
             _frame.Navigate(typeof(ControlsPage));
         }
 
+        // CORREÇÃO: Adicionar método para navegar ao Game Over
         public void NavigateToGameOver(int score)
         {
             _frame.Navigate(typeof(GameOverPage), score);

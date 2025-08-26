@@ -20,10 +20,6 @@
                     <TextBlock Text="ESPACO: Atirar lasers" Foreground="#FFFFFF" FontSize="16"/>
 
                     <Rectangle Height="1" Fill="#333333" Margin="0,8"/>
-
-                    <TextBlock Text="CONTROLES DO JOGO" Foreground="#FFFF00" FontSize="18" FontWeight="Bold"/>
-                    <TextBlock Text="P: Pausar/Continuar o jogo" Foreground="#FFFFFF" FontSize="16"/>
-                    <TextBlock Text="ESC: Voltar ao menu principal" Foreground="#FFFFFF" FontSize="16"/>
                 </StackPanel>
 
                 <StackPanel Background="#80000000" Padding="20" Spacing="12" CornerRadius="8">
@@ -36,10 +32,10 @@
                     <Rectangle Height="1" Fill="#333333" Margin="0,8"/>
 
                     <TextBlock Text="PONTUAÇÃO:" Foreground="#FFFF00" FontSize="14" FontWeight="Bold"/>
-                    <TextBlock Text="• Invasores pequenos (linha superior): 30 pontos cada" Foreground="#FFFFFF" FontSize="14"/>
-                    <TextBlock Text="• Invasores médios (linhas do meio): 20 pontos cada" Foreground="#FFFFFF" FontSize="14"/>
-                    <TextBlock Text="• Invasores grandes (linhas inferiores): 10 pontos cada" Foreground="#FFFFFF" FontSize="14"/>
-                    <TextBlock Text="• Invasor especial vermelho: 100 pontos (aparece a cada 60 segundos)" Foreground="#FF0000" FontSize="14"/>
+                    <TextBlock Text="• Invasores azuis (linha superior): 40 pontos cada" Foreground="#FFFFFF" FontSize="14"/>
+                    <TextBlock Text="• Invasores verde (linhas do meio): 30 pontos cada" Foreground="#FFFFFF" FontSize="14"/>
+                    <TextBlock Text="• Invasores amarelos (linhas inferiores): 10 pontos cada" Foreground="#FFFFFF" FontSize="14"/>
+                    <TextBlock Text="• Invasor especial vermelho: 200 pontos (aparece a cada 30 segundos)" Foreground="#FF0000" FontSize="14"/>
 
                     <Rectangle Height="1" Fill="#333333" Margin="0,8"/>
 
@@ -67,11 +63,6 @@
                         CornerRadius="8"
                         Margin="0,20,0,0"/>
 
-                <TextBlock Text="Pressione ESC a qualquer momento para voltar ao menu principal"
-                          Foreground="#666666"
-                          FontSize="12"
-                          HorizontalAlignment="Center"
-                          Margin="0,10,0,0"/>
             </StackPanel>
         </ScrollViewer>
     </Grid>
