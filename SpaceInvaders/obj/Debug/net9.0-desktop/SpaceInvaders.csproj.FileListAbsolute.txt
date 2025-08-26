@@ -372,3 +372,9 @@ C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\obj\Debug\net9.0-deskto
 C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\obj\Debug\net9.0-desktop\SpaceInvaders.genruntimeconfig.cache
 C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\obj\Debug\net9.0-desktop\ref\SpaceInvaders.dll
 C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\obj\Debug\net9.0-desktop\SpaceInvaders.sourcelink.json
+C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\bin\Debug\net9.0-desktop\NAudio.dll
+C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\bin\Debug\net9.0-desktop\NAudio.Asio.dll
+C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\bin\Debug\net9.0-desktop\NAudio.Core.dll
+C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\bin\Debug\net9.0-desktop\NAudio.Midi.dll
+C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\bin\Debug\net9.0-desktop\NAudio.Wasapi.dll
+C:\Users\ferna\RiderProjects\SpaceInvaders\SpaceInvaders\bin\Debug\net9.0-desktop\NAudio.WinMM.dll

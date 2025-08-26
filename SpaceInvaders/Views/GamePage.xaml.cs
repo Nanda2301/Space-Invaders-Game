@@ -2,6 +2,7 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Shapes;
 using SpaceInvaders.Models;
 using SpaceInvaders.Models.GameObjects;
@@ -27,11 +28,15 @@ namespace SpaceInvaders.Views
         private readonly Dictionary<VirtualKey, bool> _pressedKeys = new();
         private DateTime _lastShotTime = DateTime.MinValue;
         private readonly TimeSpan _shotCooldown = TimeSpan.FromMilliseconds(300);
+        private DateTime _gameStartTime;
+        private bool _canShoot = true;
 
         // Elementos visuais
-        private readonly List<Rectangle> _enemyRects = new();
-        private readonly List<Rectangle> _bulletRects = new();
-        private readonly List<Rectangle> _shieldRects = new();
+        private readonly List<FrameworkElement> _enemyElements = new();
+        private readonly List<FrameworkElement> _bulletElements = new();
+        private readonly List<Rectangle> _shieldElements = new();
+        private Image PlayerImage;
+        private Image _redEnemyImage;
 
         public GamePage()
         {
@@ -40,6 +45,10 @@ namespace SpaceInvaders.Views
             _soundService = new SoundService();
             _gameService = new GameService(_soundService);
 
+            // Configurar página para receber foco de teclado
+            this.IsTabStop = true;
+            this.Focus(FocusState.Programmatic);
+
             // Configurar timers
             _gameTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) }; // 60 FPS
             _gameTimer.Tick += GameTimer_Tick;
@@ -47,10 +56,10 @@ namespace SpaceInvaders.Views
             _enemyMoveTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
             _enemyMoveTimer.Tick += EnemyMoveTimer_Tick;
 
-            _enemyShootTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1000) };
+            _enemyShootTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(2000) };
             _enemyShootTimer.Tick += EnemyShootTimer_Tick;
 
-            _redEnemyTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(120) }; // 2 minutos
+            _redEnemyTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(60) }; // 60 segundos
             _redEnemyTimer.Tick += RedEnemyTimer_Tick;
 
             InitializeGame();
@@ -59,6 +68,7 @@ namespace SpaceInvaders.Views
         private void InitializeGame()
         {
             _gameService.InitializeGame();
+            _gameStartTime = DateTime.Now;
             CreateVisualElements();
             UpdateUI();
             StartGame();
@@ -68,64 +78,81 @@ namespace SpaceInvaders.Views
         {
             CreateEnemies();
             CreateShields();
+            CreatePlayerVisual();
+        }
+
+        private void CreatePlayerVisual()
+        {
+            PlayerImage = new Image
+            {
+                Source = new BitmapImage(new Uri("ms-appx:///Assets/Images/player.png")),
+                Width = 50,
+                Height = 30
+            };
+
+            Canvas.SetLeft(PlayerImage, _gameService.GameState.Player.Bounds.Left);
+            Canvas.SetTop(PlayerImage, _gameService.GameState.Player.Bounds.Top);
+            GameCanvas.Children.Add(PlayerImage);
         }
 
         private void CreateEnemies()
         {
             EnemiesCanvas.Children.Clear();
-            _enemyRects.Clear();
+            _enemyElements.Clear();
 
             var enemies = _gameService.GameState.Enemies.ToList();
             for (int i = 0; i < enemies.Count; i++)
             {
                 var enemy = enemies[i];
-                var rect = new Rectangle
+                var enemyImage = new Image
                 {
+                    Source = new BitmapImage(new Uri(GetEnemyImagePath(enemy.Type))),
                     Width = enemy.Bounds.Width,
-                    Height = enemy.Bounds.Height,
-                    Fill = GetEnemyBrush(enemy.Type)
+                    Height = enemy.Bounds.Height
                 };
 
-                Canvas.SetLeft(rect, enemy.Bounds.Left);
-                Canvas.SetTop(rect, enemy.Bounds.Top);
+                Canvas.SetLeft(enemyImage, enemy.Bounds.Left);
+                Canvas.SetTop(enemyImage, enemy.Bounds.Top);
 
-                EnemiesCanvas.Children.Add(rect);
-                _enemyRects.Add(rect);
+                EnemiesCanvas.Children.Add(enemyImage);
+                _enemyElements.Add(enemyImage);
             }
         }
 
-        private Brush GetEnemyBrush(EnemyType type)
+        private string GetEnemyImagePath(EnemyType type)
         {
             return type switch
             {
-                EnemyType.Small => new SolidColorBrush(Microsoft.UI.Colors.White),
-                EnemyType.Medium => new SolidColorBrush(Microsoft.UI.Colors.Yellow),
-                EnemyType.Large => new SolidColorBrush(Microsoft.UI.Colors.Orange),
-                _ => new SolidColorBrush(Microsoft.UI.Colors.White)
+                EnemyType.Small => "ms-appx:///Assets/Images/invader1.gif",
+                EnemyType.Medium => "ms-appx:///Assets/Images/invader2.gif",
+                EnemyType.Large => "ms-appx:///Assets/Images/invader3.gif",
+                _ => "ms-appx:///Assets/Images/invader1.gif"
             };
         }
 
         private void CreateShields()
         {
             ShieldsCanvas.Children.Clear();
-            _shieldRects.Clear();
+            _shieldElements.Clear();
 
             var shields = _gameService.GameState.Shields.ToList();
             for (int i = 0; i < shields.Count; i++)
             {
                 var shield = shields[i];
-                var rect = new Rectangle
+                var shieldRect = new Rectangle
                 {
                     Width = shield.Bounds.Width,
                     Height = shield.Bounds.Height,
-                    Fill = GetShieldBrush(shield.Health)
+                    Fill = GetShieldBrush(shield.Health),
+                    Stroke = new SolidColorBrush(Microsoft.UI.Colors.Green),
+                    StrokeThickness = 1
                 };
 
-                Canvas.SetLeft(rect, shield.Bounds.Left);
-                Canvas.SetTop(rect, shield.Bounds.Top);
+                Canvas.SetLeft(shieldRect, shield.Bounds.Left);
+                Canvas.SetTop(shieldRect, shield.Bounds.Top);
 
-                ShieldsCanvas.Children.Add(rect);
-                _shieldRects.Add(rect);
+                ShieldsCanvas.Children.Add(shieldRect);
+                _shieldElements.Add(shieldRect);
             }
         }
 
@@ -133,10 +160,9 @@ namespace SpaceInvaders.Views
         {
             return health switch
             {
-                4 => new SolidColorBrush(Microsoft.UI.Colors.Green),
-                3 => new SolidColorBrush(Microsoft.UI.Colors.YellowGreen),
-                2 => new SolidColorBrush(Microsoft.UI.Colors.Orange),
-                1 => new SolidColorBrush(Microsoft.UI.Colors.Red),
+                3 => new SolidColorBrush(Microsoft.UI.Colors.Green),
+                2 => new SolidColorBrush(Microsoft.UI.Colors.YellowGreen),
+                1 => new SolidColorBrush(Microsoft.UI.Colors.Orange),
                 _ => new SolidColorBrush(Microsoft.UI.Colors.Transparent)
             };
         }
@@ -147,6 +173,7 @@ namespace SpaceInvaders.Views
             _enemyMoveTimer.Start();
             _enemyShootTimer.Start();
             _redEnemyTimer.Start();
+
             this.Focus(FocusState.Programmatic);
         }
 
@@ -186,23 +213,22 @@ namespace SpaceInvaders.Views
                 player.MoveRight(800);
                 UpdatePlayerPosition();
             }
-
-            if (_pressedKeys.ContainsKey(VirtualKey.Space) && _pressedKeys[VirtualKey.Space])
-            {
-                TryShoot();
-            }
         }
 
         private void UpdatePlayerPosition()
         {
             var player = _gameService.GameState.Player;
-            Canvas.SetLeft(PlayerRect, player.Bounds.Left);
-            Canvas.SetTop(PlayerRect, player.Bounds.Top);
+
+            if (PlayerImage != null)
+            {
+                Canvas.SetLeft(PlayerImage, player.Bounds.Left);
+                Canvas.SetTop(PlayerImage, player.Bounds.Top);
+            }
         }
 
         private void TryShoot()
         {
-            if (DateTime.Now - _lastShotTime < _shotCooldown)
+            if (!_canShoot || DateTime.Now - _lastShotTime < _shotCooldown)
                 return;
 
             if (_gameService.GameState.Bullets.Any(b => b.Type == BulletType.Player))
@@ -224,7 +250,7 @@ namespace SpaceInvaders.Views
 
         private void CreateBulletVisual(Bullet bullet)
         {
-            var rect = new Rectangle
+            var bulletRect = new Rectangle
             {
                 Width = bullet.Bounds.Width,
                 Height = bullet.Bounds.Height,
@@ -233,11 +259,11 @@ namespace SpaceInvaders.Views
                     new SolidColorBrush(Microsoft.UI.Colors.Red)
             };
 
-            Canvas.SetLeft(rect, bullet.Bounds.Left);
-            Canvas.SetTop(rect, bullet.Bounds.Top);
+            Canvas.SetLeft(bulletRect, bullet.Bounds.Left);
+            Canvas.SetTop(bulletRect, bullet.Bounds.Top);
 
-            BulletsCanvas.Children.Add(rect);
-            _bulletRects.Add(rect);
+            BulletsCanvas.Children.Add(bulletRect);
+            _bulletElements.Add(bulletRect);
         }
 
         private void UpdateBullets()
@@ -256,21 +282,33 @@ namespace SpaceInvaders.Views
                     continue;
                 }
 
-                if (i < _bulletRects.Count)
+                if (i < _bulletElements.Count)
                 {
-                    Canvas.SetLeft(_bulletRects[i], bullet.Bounds.Left);
-                    Canvas.SetTop(_bulletRects[i], bullet.Bounds.Top);
+                    var bulletElement = _bulletElements[i];
+                    Canvas.SetLeft(bulletElement, bullet.Bounds.Left);
+                    Canvas.SetTop(bulletElement, bullet.Bounds.Top);
                 }
             }
         }
 
         private void RemoveBulletVisual(int index)
         {
-            if (index >= 0 && index < _bulletRects.Count)
+            if (index >= 0 && index < _bulletElements.Count)
             {
-                BulletsCanvas.Children.Remove(_bulletRects[index]);
-                _bulletRects.RemoveAt(index);
+                BulletsCanvas.Children.Remove(_bulletElements[index]);
+                _bulletElements.RemoveAt(index);
             }
+        }
+        
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            InitializeGame();
+            this.Focus(FocusState.Programmatic);
+        }
+
+        private void Page_Unloaded(object sender, RoutedEventArgs e)
+        {
+            StopGame();
         }
 
         private void EnemyMoveTimer_Tick(object sender, object e)
@@ -309,23 +347,22 @@ namespace SpaceInvaders.Views
                 for (int i = 0; i < enemies.Count; i++)
                 {
                     var enemy = enemies[i];
-                    enemy.Bounds = new Rect(
-                        enemy.Bounds.Left,
-                        enemy.Bounds.Top + 20,
-                        enemy.Bounds.Width,
-                        enemy.Bounds.Height
-                    );
+                    enemy.Bounds = new Rect(enemy.Bounds.Left, enemy.Bounds.Top + 20, enemy.Bounds.Width, enemy.Bounds.Height);
 
-                    if (i < _enemyRects.Count)
+                    if (i < _enemyElements.Count)
                     {
-                        Canvas.SetLeft(_enemyRects[i], enemy.Bounds.Left);
-                        Canvas.SetTop(_enemyRects[i], enemy.Bounds.Top);
+                        var element = _enemyElements[i];
+                        Canvas.SetLeft(element, enemy.Bounds.Left);
+                        Canvas.SetTop(element, enemy.Bounds.Top);
                     }
                 }
 
                 gameState.EnemiesMovingRight = !gameState.EnemiesMovingRight;
                 gameState.EnemySpeedModifier += 0.1;
-                _enemyMoveTimer.Interval = TimeSpan.FromMilliseconds(Math.Max(200, 500 - (gameState.Level * 50)));
+
+                int remainingEnemies = enemies.Count;
+                double speedFactor = Math.Max(0.3, 1.0 - (50 - remainingEnemies) * 0.02);
+                _enemyMoveTimer.Interval = TimeSpan.FromMilliseconds(Math.Max(200, 500 * speedFactor));
             }
             else
             {
@@ -334,17 +371,13 @@ namespace SpaceInvaders.Views
                 for (int i = 0; i < enemies.Count; i++)
                 {
                     var enemy = enemies[i];
-                    enemy.Bounds = new Rect(
-                        enemy.Bounds.Left + (moveDistance * direction),
-                        enemy.Bounds.Top,
-                        enemy.Bounds.Width,
-                        enemy.Bounds.Height
-                    );
+                    enemy.Bounds = new Rect(enemy.Bounds.Left + (moveDistance * direction), enemy.Bounds.Top, enemy.Bounds.Width, enemy.Bounds.Height);
 
-                    if (i < _enemyRects.Count)
+                    if (i < _enemyElements.Count)
                     {
-                        Canvas.SetLeft(_enemyRects[i], enemy.Bounds.Left);
-                        Canvas.SetTop(_enemyRects[i], enemy.Bounds.Top);
+                        var element = _enemyElements[i];
+                        Canvas.SetLeft(element, enemy.Bounds.Left);
+                        Canvas.SetTop(element, enemy.Bounds.Top);
                     }
                 }
             }
@@ -355,11 +388,14 @@ namespace SpaceInvaders.Views
             if (_gameService.GameState.IsPaused || _gameService.GameState.IsGameOver)
                 return;
 
-            var enemies = _gameService.GameState.Enemies.Where(e => e.Type == EnemyType.Medium).ToList();
-            if (!enemies.Any()) return;
+            var shootingEnemies = _gameService.GameState.Enemies
+                .Where(en => en.Type == EnemyType.Small)
+                .ToList();
+
+            if (!shootingEnemies.Any()) return;
 
             var random = new Random();
-            var shooter = enemies[random.Next(enemies.Count)];
+            var shooter = shootingEnemies[random.Next(shootingEnemies.Count)];
 
             var bullet = new Bullet(
                 shooter.Bounds.Left + shooter.Bounds.Width / 2 - 1.5,
@@ -384,16 +420,38 @@ namespace SpaceInvaders.Views
                 ShowRedEnemy();
             }
         }
+        
+        private void RestartButton_Click(object sender, RoutedEventArgs e)
+        {
+            GameOverOverlay.Visibility = Visibility.Collapsed;
+            InitializeGame();
+        }
+
+        private void MenuButton_Click(object sender, RoutedEventArgs e)
+        {
+            ReturnToMenu();
+        }
+
 
         private void ShowRedEnemy()
         {
             var redEnemy = _gameService.GameState.RedEnemy;
-            if (redEnemy != null)
+            if (redEnemy == null) return;
+
+            if (_redEnemyImage == null)
             {
-                Canvas.SetLeft(RedEnemyRect, redEnemy.Bounds.Left);
-                Canvas.SetTop(RedEnemyRect, redEnemy.Bounds.Top);
-                RedEnemyRect.Visibility = Visibility.Visible;
+                _redEnemyImage = new Image
+                {
+                    Source = new BitmapImage(new Uri("ms-appx:///Assets/Images/invaderRED.gif")),
+                    Width = redEnemy.Bounds.Width,
+                    Height = redEnemy.Bounds.Height
+                };
+                GameCanvas.Children.Add(_redEnemyImage);
             }
+
+            Canvas.SetLeft(_redEnemyImage, redEnemy.Bounds.Left);
+            Canvas.SetTop(_redEnemyImage, redEnemy.Bounds.Top);
+            _redEnemyImage.Visibility = Visibility.Visible;
         }
 
         private void UpdateRedEnemy()
@@ -407,12 +465,13 @@ namespace SpaceInvaders.Views
                 (!redEnemy.MovingRight && redEnemy.Bounds.Right < 0))
             {
                 _gameService.GameState.RedEnemy = null;
-                RedEnemyRect.Visibility = Visibility.Collapsed;
+                if (_redEnemyImage != null)
+                    _redEnemyImage.Visibility = Visibility.Collapsed;
             }
-            else
+            else if (_redEnemyImage != null)
             {
-                Canvas.SetLeft(RedEnemyRect, redEnemy.Bounds.Left);
-                Canvas.SetTop(RedEnemyRect, redEnemy.Bounds.Top);
+                Canvas.SetLeft(_redEnemyImage, redEnemy.Bounds.Left);
+                Canvas.SetTop(_redEnemyImage, redEnemy.Bounds.Top);
             }
         }
 
@@ -454,7 +513,8 @@ namespace SpaceInvaders.Views
                         gameState.RedEnemy = null;
                         gameState.Bullets.Remove(bullet);
 
-                        RedEnemyRect.Visibility = Visibility.Collapsed;
+                        if (_redEnemyImage != null)
+                            _redEnemyImage.Visibility = Visibility.Collapsed;
                         RemoveBulletVisual(bulletIndex);
 
                         _soundService.PlaySound(SoundEffects.RedEnemyKilled);
@@ -498,24 +558,25 @@ namespace SpaceInvaders.Views
 
         private void RemoveEnemyVisual(int index)
         {
-            if (index >= 0 && index < _enemyRects.Count)
+            if (index >= 0 && index < _enemyElements.Count)
             {
-                EnemiesCanvas.Children.Remove(_enemyRects[index]);
-                _enemyRects.RemoveAt(index);
+                EnemiesCanvas.Children.Remove(_enemyElements[index]);
+                _enemyElements.RemoveAt(index);
             }
         }
 
         private void UpdateShieldVisual(int index, Shield shield)
         {
-            if (index >= 0 && index < _shieldRects.Count)
+            if (index >= 0 && index < _shieldElements.Count)
             {
+                var shieldRect = _shieldElements[index];
                 if (shield.IsActive)
                 {
-                    _shieldRects[index].Fill = GetShieldBrush(shield.Health);
+                    shieldRect.Fill = GetShieldBrush(shield.Health);
                 }
                 else
                 {
-                    _shieldRects[index].Visibility = Visibility.Collapsed;
+                    shieldRect.Visibility = Visibility.Collapsed;
                 }
             }
         }
@@ -534,13 +595,7 @@ namespace SpaceInvaders.Views
         {
             var gameState = _gameService.GameState;
 
-            if (gameState.Player.Lives <= 0)
-            {
-                GameOver();
-                return;
-            }
-
-            if (gameState.Enemies.Any(e => e.Bounds.Bottom >= gameState.Player.Bounds.Top - 10))
+            if (gameState.Player.Lives <= 0 || gameState.Enemies.Any(e => e.Bounds.Bottom >= gameState.Player.Bounds.Top - 10))
             {
                 GameOver();
                 return;
@@ -587,86 +642,33 @@ namespace SpaceInvaders.Views
 
             CreateEnemies();
         }
+        
+        private void ReturnToMenu()
+        {
+            StopGame();
+            App.NavigationService?.NavigateToMainMenu();
+        }
 
         private void UpdateUI()
         {
-            var gameState = _gameService.GameState;
-            ScoreText.Text = $"SCORE: {gameState.Player.Score:D4}";
-            LivesText.Text = $"LIVES: {gameState.Player.Lives}";
-            LevelText.Text = $"LEVEL: {gameState.Level}";
-
-            PauseOverlay.Visibility = gameState.IsPaused ? Visibility.Visible : Visibility.Collapsed;
-        }
-
-        private void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-            this.Focus(FocusState.Programmatic);
-        }
-
-        private void Page_Unloaded(object sender, RoutedEventArgs e)
-        {
-            StopGame();
+            ScoreText.Text = $"SCORE: {_gameService.GameState.Player.Score:D4}";
+            LivesText.Text = $"LIVES: {_gameService.GameState.Player.Lives}";
+            LevelText.Text = $"LEVEL: {_gameService.GameState.Level}";
         }
 
         private void Page_KeyDown(object sender, KeyRoutedEventArgs e)
         {
             _pressedKeys[e.Key] = true;
 
-            if (e.Key == VirtualKey.P)
+            if (e.Key == VirtualKey.Space)
             {
-                TogglePause();
+                TryShoot();
             }
-            else if (e.Key == VirtualKey.Escape)
-            {
-                ReturnToMenu();
-            }
-
-            e.Handled = true;
         }
 
         private void Page_KeyUp(object sender, KeyRoutedEventArgs e)
         {
             _pressedKeys[e.Key] = false;
-            e.Handled = true;
-        }
-
-        private void TogglePause()
-        
-        {
-            var gameState = _gameService.GameState;
-            gameState.IsPaused = !gameState.IsPaused;
-            
-            if (gameState.IsPaused)
-            {
-                _gameTimer.Stop();
-                _enemyMoveTimer.Stop();
-                _enemyShootTimer.Stop();
-            }
-            else
-            {
-                _gameTimer.Start();
-                _enemyMoveTimer.Start();
-                _enemyShootTimer.Start();
-            }
-            
-            UpdateUI();
-        }
-
-        private void RestartButton_Click(object sender, RoutedEventArgs e)
-        {
-            GameOverOverlay.Visibility = Visibility.Collapsed;
-            InitializeGame();
-        }
-
-        private void MenuButton_Click(object sender, RoutedEventArgs e)
-        {
-            ReturnToMenu();
-        }
-
-        private void ReturnToMenu()
-        {
-            StopGame();
-            App.NavigationService.NavigateToMainMenu();
         }
     }
 }

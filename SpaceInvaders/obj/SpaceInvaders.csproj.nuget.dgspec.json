@@ -60,6 +60,11 @@
               "version": "[9.0.7, )",
               "autoReferenced": true
             },
+            "NAudio": {
+              "target": "Package",
+              "version": "[2.2.1, )",
+              "versionCentrallyManaged": true
+            },
             "SkiaSharp.Skottie": {
               "target": "Package",
               "version": "[3.119.0, )",
@@ -223,6 +228,9 @@
               "version": "[6.1.34, )",
               "autoReferenced": true
             }
+          },
+          "centralPackageVersions": {
+            "NAudio": "2.2.1"
           },
           "imports": [
             "net461",
